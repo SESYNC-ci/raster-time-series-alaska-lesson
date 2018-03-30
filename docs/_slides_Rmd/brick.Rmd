@@ -61,16 +61,19 @@ and interpret the characteristics of wildfire visible by remote sensing.
 ```{r, eval = FALSE}
 animate(ndvi, pause = 0.5, n = 1)
 ```
-```{r, echo = FALSE}
+```{r, eval = FALSE}
 img <- magick::image_graph(600, 340, res = 96)
 for (i in 1:dim(ndvi)[3]) {
   plot(ndvi[[i]], zlim = c(-0.2, 1))
   title(main=names(ndvi[[i]]))
 }
 dev.off()
-animation <- magick::image_animate(img, fps = 2)
-print(animation)
+magick::image_write(
+  magick::image_animate(img, fps = 2),
+  'docs/images/ndvi_animation.gif')
 ```
+![]({{ site.baseurl }}/images/ndvi_animation.gif)
+{:.captioned}
 
 ===
 

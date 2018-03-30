@@ -96,6 +96,21 @@ animate(ndvi, pause = 0.5, n = 1)
 {:.input}
 
 
+~~~r
+img <- magick::image_graph(600, 340, res = 96)
+for (i in 1:dim(ndvi)[3]) {
+  plot(ndvi[[i]], zlim = c(-0.2, 1))
+  title(main=names(ndvi[[i]]))
+}
+dev.off()
+magick::image_write(
+  magick::image_animate(img, fps = 2),
+  'docs/images/ndvi_animation.gif')
+~~~
+{:.input}
+
+![]({{ site.baseurl }}/images/ndvi_animation.gif)
+{:.captioned}
 
 ===
 
@@ -121,19 +136,9 @@ plot(ndvi[[idx]])
 
 ~~~r
 pixel <- click(ndvi[[idx]], cell = TRUE)
-~~~
-{:.input}
-
-
-~~~r
 pixel
 ~~~
 {:.input}
-
-~~~
-Error in eval(expr, envir, enclos): object 'pixel' not found
-~~~
-{:.output}
 
 
 ===
@@ -183,7 +188,7 @@ ggplot(pixel,
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-13]({{ site.baseurl }}/images/unnamed-chunk-13-1.png)
+![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
 {:.captioned}
 
 
@@ -294,7 +299,7 @@ ggplot(scar_zone,
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-20]({{ site.baseurl }}/images/unnamed-chunk-20-1.png)
+![plot of chunk unnamed-chunk-19]({{ site.baseurl }}/images/unnamed-chunk-19-1.png)
 {:.captioned}
 
 

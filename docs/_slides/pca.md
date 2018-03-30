@@ -3,7 +3,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Eliminate the Time Dimension
+## Eliminating Time
 
 Because changes to NDVI at each pixel follow a similar pattern over the course of a year, the slices are highly correlated. Consider representing the NDVI values as a simple matrix with
 
@@ -54,9 +54,22 @@ animate(ndvi_stdz, pause = 0.5, n = 1)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-1.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-2.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-3.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-4.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-5.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-6.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-7.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-8.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-9.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-10.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-11.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-12.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-13.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-14.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-15.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-16.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-17.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-18.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-19.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-20.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-21.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-22.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-23.png)
-{:.captioned}
 
+~~~r
+img <- magick::image_graph(600, 340, res = 96)
+for (i in 1:dim(ndvi_stdz)[3]) {
+  plot(ndvi_stdz[[i]], zlim = c(-3, 3))
+  title(main=names(ndvi_stdz[[i]]))
+}
+dev.off()
+magick::image_write(
+  magick::image_animate(img, fps = 2),
+  'docs/images/ndvi_stdz_animation.gif')
+~~~
+{:.input}
+
+![]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+{:.captioned}
 
 ===
 
@@ -72,7 +85,7 @@ plot(pca)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-4]({{ site.baseurl }}/images/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-5]({{ site.baseurl }}/images/unnamed-chunk-5-1.png)
 {:.captioned}
 
 
@@ -104,7 +117,7 @@ ggplot(loading, aes(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-1.png)
+![plot of chunk unnamed-chunk-7]({{ site.baseurl }}/images/unnamed-chunk-7-1.png)
 {:.captioned}
 
 
@@ -128,7 +141,7 @@ plot(ndvi_scores)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-7]({{ site.baseurl }}/images/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-8]({{ site.baseurl }}/images/unnamed-chunk-8-1.png)
 {:.captioned}
 
 
@@ -144,13 +157,13 @@ The first several principal components account for most of the variance in the
 data, so approximate the NDVI time series by "un-projecting" the scores.
 
 Mathematically, the calculation for this approximation at each time slice,
-$\bm{X_t}$, is a linear combination of each score "map", $\bm{T}_i$, with
-time-varying loadings, $\W_{i,t}$.
+\(\mathbf{X_t}\), is a linear combination of each score "map", \(\bm{T}_i\), with
+time-varying loadings, \(\W_{i,t}\).
 {:.notes}
 
-$$
-\bm{X}_t \sim= W_{1,t}*\bm{T}_1 + W_{2,t}*\bm{T}_2 + W_{3,t}*\bm{T}_3 + \hdots
-$$
+\[
+\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \hdots
+\]
 
 ===
 
@@ -180,9 +193,22 @@ animate(ndvi_dev, pause = 0.5, n = 1)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-1.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-2.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-3.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-4.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-5.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-6.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-7.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-8.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-9.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-10.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-11.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-12.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-13.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-14.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-15.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-16.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-17.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-18.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-19.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-20.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-21.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-22.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-23.png)
-{:.captioned}
 
+~~~r
+img <- magick::image_graph(600, 340, res = 96)
+for (i in 1:dim(ndvi_dev)[3]) {
+  plot(ndvi_dev[[i]], zlim = c(-6, 8))
+  title(main=names(ndvi_dev[[i]]))
+}
+dev.off()
+magick::image_write(
+  magick::image_animate(img, fps = 2),
+  'docs/images/ndvi_dev_animation.gif')
+~~~
+{:.input}
+
+![]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+{:.captioned}
 
 ===
 
@@ -197,6 +223,6 @@ plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-10]({{ site.baseurl }}/images/unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
 {:.captioned}
 

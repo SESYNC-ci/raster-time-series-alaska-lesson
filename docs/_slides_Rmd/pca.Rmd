@@ -3,7 +3,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Eliminate the Time Dimension
+## Eliminating Time
 
 Because changes to NDVI at each pixel follow a similar pattern over the course of a year, the slices are highly correlated. Consider representing the NDVI values as a simple matrix with
 
@@ -45,16 +45,19 @@ Standardizing the data removes the large seasonal swing, but not the correlation
 ```{r, eval = FALSE}
 animate(ndvi_stdz, pause = 0.5, n = 1)
 ```
-```{r, echo = FALSE}
+```{r, eval = FALSE}
 img <- magick::image_graph(600, 340, res = 96)
-for (i in 1:dim(ndvi)[3]) {
-  plot(ndvi[[i]], zlim = c(-0.2, 1))
-  title(main=names(ndvi[[i]]))
+for (i in 1:dim(ndvi_stdz)[3]) {
+  plot(ndvi_stdz[[i]], zlim = c(-3, 3))
+  title(main=names(ndvi_stdz[[i]]))
 }
 dev.off()
-animation <- magick::image_animate(img, fps = 2)
-print(animation)
+magick::image_write(
+  magick::image_animate(img, fps = 2),
+  'docs/images/ndvi_stdz_animation.gif')
 ```
+![]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+{:.captioned}
 
 ===
 
@@ -121,13 +124,13 @@ The first several principal components account for most of the variance in the
 data, so approximate the NDVI time series by "un-projecting" the scores.
 
 Mathematically, the calculation for this approximation at each time slice,
-$\bm{X_t}$, is a linear combination of each score "map", $\bm{T}_i$, with
-time-varying loadings, $\W_{i,t}$.
+\(\mathbf{X_t}\), is a linear combination of each score "map", \(\bm{T}_i\), with
+time-varying loadings, \(\W_{i,t}\).
 {:.notes}
 
-$$
-\bm{X}_t \sim= W_{1,t}*\bm{T}_1 + W_{2,t}*\bm{T}_2 + W_{3,t}*\bm{T}_3 + \hdots
-$$
+\[
+\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \hdots
+\]
 
 ===
 
@@ -148,9 +151,22 @@ names(ndvi_dev) <- names(ndvi)
 Verify that the deviations just calculated are never very large, then try the
 same approximation using even fewer principal components.
 
-```{r}
+```{r, eval = FALSE}
 animate(ndvi_dev, pause = 0.5, n = 1)
 ```
+```{r, eval = FALSE}
+img <- magick::image_graph(600, 340, res = 96)
+for (i in 1:dim(ndvi_dev)[3]) {
+  plot(ndvi_dev[[i]], zlim = c(-6, 8))
+  title(main=names(ndvi_dev[[i]]))
+}
+dev.off()
+magick::image_write(
+  magick::image_animate(img, fps = 2),
+  'docs/images/ndvi_dev_animation.gif')
+```
+![]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+{:.captioned}
 
 ===
 
