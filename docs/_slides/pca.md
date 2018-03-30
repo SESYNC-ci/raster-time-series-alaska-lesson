@@ -28,6 +28,7 @@ ndvi_cor <- cov2cor(ndvi_cov)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 The `layerStats` function only evaluates standard statistical summaries. The `calc` function however can apply user defined functions over or across raster layers.
@@ -42,6 +43,7 @@ ndvi_stdz <- calc(ndvi,
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 Standardizing the data removes the large seasonal swing, but not the correlation between "variables", i.e. between pixels in different time slices. Only the correlation matters for PCA.
@@ -54,6 +56,7 @@ animate(ndvi_stdz, pause = 0.5, n = 1)
 
 ![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-1.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-2.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-3.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-4.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-5.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-6.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-7.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-8.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-9.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-10.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-11.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-12.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-13.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-14.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-15.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-16.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-17.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-18.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-19.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-20.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-21.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-22.png)![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-23.png)
 {:.captioned}
+
 
 ===
 
@@ -72,6 +75,7 @@ plot(pca)
 ![plot of chunk unnamed-chunk-4]({{ site.baseurl }}/images/unnamed-chunk-4-1.png)
 {:.captioned}
 
+
 ===
 
 Principal component "loadings" correspond to the weight each time slice
@@ -89,6 +93,7 @@ loading <- data.frame(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 
@@ -101,6 +106,7 @@ ggplot(loading, aes(
 
 ![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-1.png)
 {:.captioned}
+
 
 ===
 
@@ -124,6 +130,7 @@ plot(ndvi_scores)
 
 ![plot of chunk unnamed-chunk-7]({{ site.baseurl }}/images/unnamed-chunk-7-1.png)
 {:.captioned}
+
 
 A complication in here is that the `pca` object does not know how the original
 data were centered, because we didn't give it the original data. The `predict`
@@ -161,6 +168,7 @@ names(ndvi_dev) <- names(ndvi)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 Verify that the deviations just calculated are never very large, then try the
@@ -174,6 +182,7 @@ animate(ndvi_dev, pause = 0.5, n = 1)
 
 ![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-1.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-2.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-3.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-4.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-5.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-6.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-7.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-8.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-9.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-10.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-11.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-12.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-13.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-14.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-15.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-16.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-17.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-18.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-19.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-20.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-21.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-22.png)![plot of chunk unnamed-chunk-9]({{ site.baseurl }}/images/unnamed-chunk-9-23.png)
 {:.captioned}
+
 
 ===
 
@@ -190,3 +199,4 @@ plot(st_geometry(scar), add = TRUE)
 
 ![plot of chunk unnamed-chunk-10]({{ site.baseurl }}/images/unnamed-chunk-10-1.png)
 {:.captioned}
+

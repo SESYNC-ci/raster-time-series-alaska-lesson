@@ -26,7 +26,7 @@ its elements and use them without a pointer back to the library. Import
 functions from other packages as needed using the [modules](){:.rlib} library,
 to make their source clear for training purposes.
 
-```{r, title = '{{ site.handouts[0] }}', results = 'hide'}
+```{r, title = '{{ site.handouts[0] }}', results = 'hide', message = FALSE}
 library(raster)
 library('modules')
 import('magrittr', '%>%')

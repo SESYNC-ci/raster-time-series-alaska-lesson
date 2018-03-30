@@ -35,15 +35,18 @@ ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ~~~r
 ndvi_yrly
 ~~~
 {:.input}
+
 ~~~
 [1] "data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif"
 [2] "data/r_ndvi_2001_2009_filling6__STA_year9_Amplitude0.tif"
 ~~~
 {:.output}
+
 
 ===
 
@@ -54,6 +57,7 @@ names(ndvi) <- c('Avg NDVI 2002', 'Avg NDVI 2009')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ~~~r
 plot(ndvi)
 ~~~
@@ -61,6 +65,7 @@ plot(ndvi)
 
 ![plot of chunk unnamed-chunk-4]({{ site.baseurl }}/images/unnamed-chunk-4-1.png)
 {:.captioned}
+
 
 ===
 
@@ -73,17 +78,19 @@ projections. They only have to share a common extent and resolution.
 raster(ndvi, 1)
 ~~~
 {:.input}
+
 ~~~
 class       : RasterLayer 
 dimensions  : 1951, 2441, 4762391  (nrow, ncol, ncell)
 resolution  : 1000.045, 999.9567  (x, y)
 extent      : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
-data source : /nfs/bparmentier-data/Data/workshop_spatial/sesync2018_workshop/Exercise_2/data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
+data source : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
 names       : Avg.NDVI.2002 
 values      : -0.3, 0.8713216  (min, max)
 ~~~
 {:.output}
+
 
 ===
 
@@ -97,10 +104,12 @@ crs(ndvi) <- '+init=epsg:3338'
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ~~~r
 raster(ndvi, 0)
 ~~~
 {:.input}
+
 ~~~
 class       : RasterLayer 
 dimensions  : 1951, 2441, 4762391  (nrow, ncol, ncell)
@@ -109,6 +118,7 @@ extent      : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
 coord. ref. : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
 ~~~
 {:.output}
+
 
 ===
 
@@ -120,10 +130,12 @@ take up much more space on disk, as you can see in the file browser.
 print(object.size(ndvi), units = 'KB', standard = 'SI')
 ~~~
 {:.input}
+
 ~~~
 29.6 kB
 ~~~
 {:.output}
+
 
 ===
 
@@ -135,10 +147,12 @@ pixel values are saved on disk.
 inMemory(ndvi)
 ~~~
 {:.input}
+
 ~~~
 [1] FALSE
 ~~~
 {:.output}
+
 
 Whereas `read.csv()` would load the named file into memory, the [raster](){:.rlib} library handles files like a database where
 possible. The values can be accessed, to make those plots for example, but are
@@ -157,7 +171,7 @@ shapefile) occured within boreal forest areas of central Alaska.
 ~~~r
 import('sf', 'read_sf', 'st_geometry', 'st_bbox')
 scar <- read_sf(
-  'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.shp',
+  'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
@@ -166,6 +180,7 @@ plot(st_geometry(scar), add = TRUE)
 
 ![plot of chunk unnamed-chunk-10]({{ site.baseurl }}/images/unnamed-chunk-10-1.png)
 {:.captioned}
+
 
 ===
 
@@ -178,6 +193,7 @@ ndvi <- crop(ndvi, burn_bbox)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ~~~r
 plot(ndvi[[1]], ext = burn_bbox)
 plot(st_geometry(scar), add = TRUE)
@@ -186,6 +202,7 @@ plot(st_geometry(scar), add = TRUE)
 
 ![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
 {:.captioned}
+
 
 ===
 
@@ -196,10 +213,12 @@ Notice, however, that the NDVI values are now stored in memory. That's okay for 
 inMemory(ndvi)
 ~~~
 {:.input}
+
 ~~~
 [1] TRUE
 ~~~
 {:.output}
+
 
 ===
 
@@ -211,8 +230,10 @@ indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 
 ~~~r
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
+names(diff_ndvi) <- 'Difference'
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
 
 ~~~r
 plot(diff_ndvi)
@@ -221,6 +242,7 @@ plot(diff_ndvi)
 
 ![plot of chunk unnamed-chunk-15]({{ site.baseurl }}/images/unnamed-chunk-15-1.png)
 {:.captioned}
+
 
 ===
 
@@ -234,6 +256,7 @@ hist(diff_ndvi)
 
 ![plot of chunk unnamed-chunk-16]({{ site.baseurl }}/images/unnamed-chunk-16-1.png)
 {:.captioned}
+
 
 ===
 
@@ -250,6 +273,7 @@ plot(st_geometry(scar), add = TRUE)
 
 ![plot of chunk unnamed-chunk-17]({{ site.baseurl }}/images/unnamed-chunk-17-1.png)
 {:.captioned}
+
 
 ===
 
@@ -269,6 +293,7 @@ diff_ndvi_sd <- cellStats(diff_ndvi, 'sd')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 Mathematical operations with rasters and scalars work as expected; scalar
@@ -281,8 +306,10 @@ The difference threshold of "-0.1" appears roughly equivalent to a threshold of
 
 ~~~r
 diff_ndvi_stdz <- (diff_ndvi - diff_ndvi_mean) / diff_ndvi_sd
+names(diff_ndvi_stdz) <- 'Standardized Difference'
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
 
 ~~~r
 hist(diff_ndvi_stdz, breaks = 20)
@@ -291,6 +318,7 @@ hist(diff_ndvi_stdz, breaks = 20)
 
 ![plot of chunk unnamed-chunk-20]({{ site.baseurl }}/images/unnamed-chunk-20-1.png)
 {:.captioned}
+
 
 ===
 
@@ -305,3 +333,4 @@ plot(st_geometry(scar), add = TRUE)
 
 ![plot of chunk unnamed-chunk-21]({{ site.baseurl }}/images/unnamed-chunk-21-1.png)
 {:.captioned}
+

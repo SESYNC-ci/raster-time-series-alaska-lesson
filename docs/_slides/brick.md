@@ -17,6 +17,7 @@ crs(ndvi) <- '+init=epsg:3338'
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 
@@ -27,6 +28,7 @@ names(ndvi) <- format(dates, '%b %d %Y')
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
 plot(subset(ndvi, 1:2))
 ~~~
@@ -34,6 +36,7 @@ plot(subset(ndvi, 1:2))
 
 ![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-1.png)
 {:.captioned}
+
 
 ## Raster Bricks
 
@@ -56,6 +59,7 @@ ndvi <- crop(ndvi, burn_bbox,
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 Notice that `crop` creates a `RasterBrick`. In fact, we have been working with a `RasterBrick` in memory since first using `crop`.
 
 
@@ -63,6 +67,7 @@ Notice that `crop` creates a `RasterBrick`. In fact, we have been working with a
 ndvi
 ~~~
 {:.input}
+
 ~~~
 class       : RasterBrick 
 dimensions  : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
@@ -75,6 +80,7 @@ min values  :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,  
 max values  :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 
 ~~~
 {:.output}
+
 
 ===
 
@@ -89,8 +95,7 @@ animate(ndvi, pause = 0.5, n = 1)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-1.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-2.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-3.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-4.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-5.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-6.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-7.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-8.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-9.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-10.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-11.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-12.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-13.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-14.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-15.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-16.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-17.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-18.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-19.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-20.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-21.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-22.png)![plot of chunk unnamed-chunk-6]({{ site.baseurl }}/images/unnamed-chunk-6-23.png)
-{:.captioned}
+
 
 ===
 
@@ -107,8 +112,9 @@ plot(ndvi[[idx]])
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-7]({{ site.baseurl }}/images/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-8]({{ site.baseurl }}/images/unnamed-chunk-8-1.png)
 {:.captioned}
+
 
 ===
 
@@ -118,14 +124,17 @@ pixel <- click(ndvi[[idx]], cell = TRUE)
 ~~~
 {:.input}
 
+
 ~~~r
 pixel
 ~~~
 {:.input}
+
 ~~~
 Error in eval(expr, envir, enclos): object 'pixel' not found
 ~~~
 {:.output}
+
 
 ===
 
@@ -142,6 +151,7 @@ scar_pixel <- data.frame(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 Repeat the selection with `click` for "normal" looking pixels.
@@ -156,6 +166,7 @@ normal_pixel <- data.frame(
   NDVI = c(ndvi[pixel]))
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
 
 ===
 
@@ -172,8 +183,9 @@ ggplot(pixel,
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-13]({{ site.baseurl }}/images/unnamed-chunk-13-1.png)
 {:.captioned}
+
 
 ===
 
@@ -188,6 +200,7 @@ another spatial data source.
 ?zonal
 ~~~
 {:.input}
+
 
 Currently we have raster data (`ndvi`) and vector data (`scar`). In order to
 aggregate by polygon, we have to join these two datasets. There are two
@@ -211,6 +224,7 @@ scar_zone <- rasterize(scar_geom, ndvi,
 ~~~
 {:.input}
 
+
 ===
 
 
@@ -218,12 +232,14 @@ scar_zone <- rasterize(scar_geom, ndvi,
 sf::st_is_valid(scar, reason = TRUE)
 ~~~
 {:.input}
+
 ~~~
 [1] "Self-intersection[209342.453857422 1824967.88427734]"
 [2] "Self-intersection[181341.197753906 1775970.00769043]"
 [3] "Nested shells[75336.4425048828 1815968.27429199]"    
 ~~~
 {:.output}
+
 
 ===
 
@@ -238,6 +254,7 @@ scar_zone <- crop(scar_zone, ndvi)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 The `zonal` function calculates `fun` over each zone
@@ -247,6 +264,7 @@ The `zonal` function calculates `fun` over each zone
 scar_ndvi <- zonal(ndvi, scar_zone, fun = "mean")
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
 
 ===
 
@@ -263,6 +281,7 @@ scar_zone <- data.frame(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 What appears to be the most pronounced signal in this view is an early loss of greenness compared to the background NDVI.
@@ -275,8 +294,9 @@ ggplot(scar_zone,
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-19]({{ site.baseurl }}/images/unnamed-chunk-19-1.png)
+![plot of chunk unnamed-chunk-20]({{ site.baseurl }}/images/unnamed-chunk-20-1.png)
 {:.captioned}
+
 
 ===
 

@@ -103,7 +103,7 @@ shapefile) occured within boreal forest areas of central Alaska.
 ```{r, title = '{{ site.handouts[0] }}'}
 import('sf', 'read_sf', 'st_geometry', 'st_bbox')
 scar <- read_sf(
-  'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.shp',
+  'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
@@ -139,6 +139,7 @@ indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
+names(diff_ndvi) <- 'Difference'
 ```
 ```{r}
 plot(diff_ndvi)
@@ -190,6 +191,7 @@ The difference threshold of "-0.1" appears roughly equivalent to a threshold of
 
 ```{r, title = '{{ site.handouts[0] }}'}
 diff_ndvi_stdz <- (diff_ndvi - diff_ndvi_mean) / diff_ndvi_sd
+names(diff_ndvi_stdz) <- 'Standardized Difference'
 ```
 ```{r}
 hist(diff_ndvi_stdz, breaks = 20)
