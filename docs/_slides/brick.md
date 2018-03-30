@@ -5,13 +5,14 @@ editor_options:
 
 ## Raster Time Series
 
-To understand changes in average NDVI between 2002 and 2009, take a closer look
-using NDVI products covering 16 day periods in 2005. These images are stored as
-separate files on disk, all having the same extent and resolution.
+Take a closer look at NDVI using products covering 16 day periods in 2005. These
+images are stored as separate files on disk, all having the same extent and
+resolution.
 
 
 ~~~r
-ndvi_16day <- Sys.glob('data/NDVI_alaska_2005/*.tif')
+ndvi_16day <- Sys.glob(
+  'data/NDVI_alaska_2005/*.tif')
 ndvi <- stack(ndvi_16day)
 crs(ndvi) <- '+init=epsg:3338'
 ~~~
@@ -22,7 +23,9 @@ crs(ndvi) <- '+init=epsg:3338'
 
 
 ~~~r
-dates <- as.Date(sub('alaska_NDVI_', '', names(ndvi)), '%Y_%m_%d')
+dates <- as.Date(
+  sub('alaska_NDVI_', '', names(ndvi)),
+  '%Y_%m_%d')
 names(ndvi) <- format(dates, '%b %d %Y')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
@@ -96,19 +99,6 @@ animate(ndvi, pause = 0.5, n = 1)
 {:.input}
 
 
-~~~r
-img <- magick::image_graph(600, 340, res = 96)
-for (i in 1:dim(ndvi)[3]) {
-  plot(ndvi[[i]], zlim = c(-0.2, 1))
-  title(main=names(ndvi[[i]]))
-}
-dev.off()
-magick::image_write(
-  magick::image_animate(img, fps = 2),
-  'docs/images/ndvi_animation.gif')
-~~~
-{:.input}
-
 ![]({{ site.baseurl }}/images/ndvi_animation.gif)
 {:.captioned}
 
@@ -179,7 +169,8 @@ Join your haphazard samples together for comparison as time series.
 
 
 ~~~r
-import('ggplot2', 'ggplot', 'aes', 'geom_line')
+import('ggplot2', 'ggplot', 'aes',
+  'geom_line')
 pixel <- rbind(normal_pixel, scar_pixel)
 ggplot(pixel,
   aes(x = Date, y = NDVI,
@@ -266,7 +257,8 @@ The `zonal` function calculates `fun` over each zone
 
 
 ~~~r
-scar_ndvi <- zonal(ndvi, scar_zone, fun = "mean")
+scar_ndvi <- zonal(ndvi,
+  scar_zone, fun = "mean")
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 

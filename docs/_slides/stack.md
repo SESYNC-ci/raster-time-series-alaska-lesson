@@ -53,7 +53,9 @@ ndvi_yrly
 
 ~~~r
 ndvi <- stack(ndvi_yrly)
-names(ndvi) <- c('Avg NDVI 2002', 'Avg NDVI 2009')
+names(ndvi) <- c(
+  'Avg NDVI 2002',
+  'Avg NDVI 2009')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
@@ -127,7 +129,9 @@ take up much more space on disk, as you can see in the file browser.
 
 
 ~~~r
-print(object.size(ndvi), units = 'KB', standard = 'SI')
+print(object.size(ndvi),
+  units = 'KB',
+  standard = 'SI')
 ~~~
 {:.input}
 
@@ -169,7 +173,8 @@ shapefile) occured within boreal forest areas of central Alaska.
 
 
 ~~~r
-import('sf', 'read_sf', 'st_geometry', 'st_bbox')
+import('sf', 'read_sf', 'st_geometry',
+  'st_bbox')
 scar <- read_sf(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)

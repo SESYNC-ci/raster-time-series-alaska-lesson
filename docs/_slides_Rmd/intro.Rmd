@@ -28,6 +28,6 @@ to make their source clear for training purposes.
 
 ```{r, title = '{{ site.handouts[0] }}', message = FALSE}
 library(raster)
-library('modules')
+library(modules)
 import('magrittr', '%>%')
 ```

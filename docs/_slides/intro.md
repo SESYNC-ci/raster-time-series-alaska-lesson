@@ -29,7 +29,7 @@ to make their source clear for training purposes.
 
 ~~~r
 library(raster)
-library('modules')
+library(modules)
 import('magrittr', '%>%')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}

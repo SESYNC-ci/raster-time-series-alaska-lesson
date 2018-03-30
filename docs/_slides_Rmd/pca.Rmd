@@ -20,9 +20,10 @@ covariance matrix or singular-value decomposition of the entire dataset.
 To perform PCA on raster data, it's efficient to use specialized tools that calculate a covariance matrix without reading in that big data matrix.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-ndvi_layerStats <- layerStats(ndvi, 'cov', na.rm = TRUE)
-ndvi_mean <- ndvi_layerStats[['mean']]
-ndvi_cov <- ndvi_layerStats[['covariance']]
+ndvi_lS <- layerStats(
+  ndvi, 'cov', na.rm = TRUE)
+ndvi_mean <- ndvi_lS[['mean']]
+ndvi_cov <- ndvi_lS[['covariance']]
 ndvi_cor <- cov2cor(ndvi_cov)
 ```
 
@@ -45,7 +46,7 @@ Standardizing the data removes the large seasonal swing, but not the correlation
 ```{r, eval = FALSE}
 animate(ndvi_stdz, pause = 0.5, n = 1)
 ```
-```{r, eval = FALSE}
+```{r, include = FALSE, eval = FALSE}
 img <- magick::image_graph(600, 340, res = 96)
 for (i in 1:dim(ndvi_stdz)[3]) {
   plot(ndvi_stdz[[i]], zlim = c(-3, 3))
@@ -124,13 +125,13 @@ The first several principal components account for most of the variance in the
 data, so approximate the NDVI time series by "un-projecting" the scores.
 
 Mathematically, the calculation for this approximation at each time slice,
-\(\mathbf{X_t}\), is a linear combination of each score "map", \(\bm{T}_i\), with
-time-varying loadings, \(\W_{i,t}\).
+$$\mathbf{X_t}$$, is a linear combination of each score "map", $$\bm{T}_i$$, with
+time-varying loadings, $$\W_{i,t}$$.
 {:.notes}
 
-\[
+$$
 \mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \hdots
-\]
+$$
 
 ===
 
@@ -140,7 +141,9 @@ on one or more of the main raster objects.
 ```{r, title = '{{ site.handouts[0] }}'}
 ndvi_dev <- overlay(
   ndvi_stdz, ndvi_scores,
-  fun = function(x, y) x - y %*% t(pca$loadings[, 1:npc]),
+  fun = function(x, y) {
+    x - y %*% t(pca$loadings[, 1:npc])
+  },
   filename = 'output/ndvi_dev.grd',
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
@@ -154,7 +157,7 @@ same approximation using even fewer principal components.
 ```{r, eval = FALSE}
 animate(ndvi_dev, pause = 0.5, n = 1)
 ```
-```{r, eval = FALSE}
+```{r, include = FALSE, eval = FALSE}
 img <- magick::image_graph(600, 340, res = 96)
 for (i in 1:dim(ndvi_dev)[3]) {
   plot(ndvi_dev[[i]], zlim = c(-6, 8))
@@ -175,6 +178,8 @@ might guess that they correspond to one longer-term and one shorter-term departu
 the seasonal NDVI variation within this extent.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-plot(ndvi_scores[[2]] < -2 | ndvi_scores[[3]] < -2)
+plot(
+  ndvi_scores[[2]] < -2 |
+  ndvi_scores[[3]] < -2)
 plot(st_geometry(scar), add = TRUE)
 ```

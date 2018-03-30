@@ -21,9 +21,10 @@ To perform PCA on raster data, it's efficient to use specialized tools that calc
 
 
 ~~~r
-ndvi_layerStats <- layerStats(ndvi, 'cov', na.rm = TRUE)
-ndvi_mean <- ndvi_layerStats[['mean']]
-ndvi_cov <- ndvi_layerStats[['covariance']]
+ndvi_lS <- layerStats(
+  ndvi, 'cov', na.rm = TRUE)
+ndvi_mean <- ndvi_lS[['mean']]
+ndvi_cov <- ndvi_lS[['covariance']]
 ndvi_cor <- cov2cor(ndvi_cov)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
@@ -54,19 +55,6 @@ animate(ndvi_stdz, pause = 0.5, n = 1)
 ~~~
 {:.input}
 
-
-~~~r
-img <- magick::image_graph(600, 340, res = 96)
-for (i in 1:dim(ndvi_stdz)[3]) {
-  plot(ndvi_stdz[[i]], zlim = c(-3, 3))
-  title(main=names(ndvi_stdz[[i]]))
-}
-dev.off()
-magick::image_write(
-  magick::image_animate(img, fps = 2),
-  'docs/images/ndvi_stdz_animation.gif')
-~~~
-{:.input}
 
 ![]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
 {:.captioned}
@@ -157,13 +145,13 @@ The first several principal components account for most of the variance in the
 data, so approximate the NDVI time series by "un-projecting" the scores.
 
 Mathematically, the calculation for this approximation at each time slice,
-\(\mathbf{X_t}\), is a linear combination of each score "map", \(\bm{T}_i\), with
-time-varying loadings, \(\W_{i,t}\).
+$$\mathbf{X_t}$$, is a linear combination of each score "map", $$\bm{T}_i$$, with
+time-varying loadings, $$\W_{i,t}$$.
 {:.notes}
 
-\[
+$$
 \mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \hdots
-\]
+$$
 
 ===
 
@@ -174,7 +162,9 @@ on one or more of the main raster objects.
 ~~~r
 ndvi_dev <- overlay(
   ndvi_stdz, ndvi_scores,
-  fun = function(x, y) x - y %*% t(pca$loadings[, 1:npc]),
+  fun = function(x, y) {
+    x - y %*% t(pca$loadings[, 1:npc])
+  },
   filename = 'output/ndvi_dev.grd',
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
@@ -194,19 +184,6 @@ animate(ndvi_dev, pause = 0.5, n = 1)
 {:.input}
 
 
-~~~r
-img <- magick::image_graph(600, 340, res = 96)
-for (i in 1:dim(ndvi_dev)[3]) {
-  plot(ndvi_dev[[i]], zlim = c(-6, 8))
-  title(main=names(ndvi_dev[[i]]))
-}
-dev.off()
-magick::image_write(
-  magick::image_animate(img, fps = 2),
-  'docs/images/ndvi_dev_animation.gif')
-~~~
-{:.input}
-
 ![]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
 {:.captioned}
 
@@ -218,7 +195,9 @@ the seasonal NDVI variation within this extent.
 
 
 ~~~r
-plot(ndvi_scores[[2]] < -2 | ndvi_scores[[3]] < -2)
+plot(
+  ndvi_scores[[2]] < -2 |
+  ndvi_scores[[3]] < -2)
 plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
