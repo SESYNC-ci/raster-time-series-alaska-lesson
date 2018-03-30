@@ -75,7 +75,7 @@ magick::image_write(
   magick::image_animate(img, fps = 2),
   'docs/images/ndvi_animation.gif')
 ```
-![]({{ site.baseurl }}/images/ndvi_animation.gif)
+![plot of ndvi_animation]({{ site.baseurl }}/images/ndvi_animation.gif)
 {:.captioned}
 
 ===

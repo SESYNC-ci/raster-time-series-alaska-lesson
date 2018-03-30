@@ -57,7 +57,7 @@ magick::image_write(
   magick::image_animate(img, fps = 2),
   'docs/images/ndvi_stdz_animation.gif')
 ```
-![]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+![plot of ndvi_stdz_animation]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
 {:.captioned}
 
 ===
@@ -168,7 +168,7 @@ magick::image_write(
   magick::image_animate(img, fps = 2),
   'docs/images/ndvi_dev_animation.gif')
 ```
-![]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+![plot of ndvi_dev_animation]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
 {:.captioned}
 
 ===
