@@ -1,15 +1,28 @@
 # Site
 
-title:
+title: Raster Time-Series
+subtitle: Wildfire in Alaska
 handouts:
-tag:
-lesson:
-instructor:
+  - worksheet.R
+  - data/NDVI_alaska_2005
+  - data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif
+  - data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed
+  - data/README.md
+tag: v0.0
+lesson: 4
+instructor: Ian Carroll
 authors:
+  - Benoit Parmentier
+  - Ian Carroll
 
 # Slides
 
 slide_sorter:
+  - intro
+  - stack
+  - brick
+  - pca
+  - conclude
 
 #####################################
 # Only modify content above or risk #

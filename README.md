@@ -9,5 +9,5 @@
 -- a merge conflict with upstream.   --
 -------------------------------------->
 
-[lesson]: https://sesync-ci.github.io/
-[slideshow]: https://sesync-ci.github.io//slides
+[lesson]: https://sesync-ci.github.io/raster-time-series-alaska-lesson
+[slideshow]: https://sesync-ci.github.io/raster-time-series-alaska-lesson/slides
