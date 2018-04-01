@@ -56,7 +56,7 @@ animate(ndvi_stdz, pause = 0.5, n = 1)
 {:.input}
 
 
-![]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+![plot of ndvi_stdz_animation]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
 {:.captioned}
 
 ===
@@ -184,7 +184,7 @@ animate(ndvi_dev, pause = 0.5, n = 1)
 {:.input}
 
 
-![]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+![plot of ndvi_dev_animation]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
 {:.captioned}
 
 ===

@@ -87,7 +87,7 @@ dimensions  : 1951, 2441, 4762391  (nrow, ncol, ncell)
 resolution  : 1000.045, 999.9567  (x, y)
 extent      : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
-data source : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
+data source : /data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
 names       : Avg.NDVI.2002 
 values      : -0.3, 0.8713216  (min, max)
 ~~~
@@ -136,7 +136,7 @@ print(object.size(ndvi),
 {:.input}
 
 ~~~
-29.6 kB
+29.4 kB
 ~~~
 {:.output}
 
