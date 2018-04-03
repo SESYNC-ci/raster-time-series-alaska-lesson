@@ -39,7 +39,7 @@ The `layerStats` function only evaluates standard statistical summaries. The `ca
 ndvi_std <- sqrt(diag(ndvi_cov))
 ndvi_stdz <- calc(ndvi,
   function(x) (x - ndvi_mean) / ndvi_std,
-  filename = 'output/ndvi_stdz.grd',
+  filename = 'results/ndvi_stdz.grd',
   overwrite = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
@@ -56,7 +56,7 @@ animate(ndvi_stdz, pause = 0.5, n = 1)
 {:.input}
 
 
-![]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+![plot of ndvi_stdz_animation]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
 {:.captioned}
 
 ===
@@ -73,7 +73,7 @@ plot(pca)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-5]({{ site.baseurl }}/images/unnamed-chunk-5-1.png)
+![plot of chunk unnamed-chunk-5]({{ site.baseurl }}/images/pca/unnamed-chunk-5-1.png)
 {:.captioned}
 
 
@@ -105,7 +105,7 @@ ggplot(loading, aes(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-7]({{ site.baseurl }}/images/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-7]({{ site.baseurl }}/images/pca/unnamed-chunk-7-1.png)
 {:.captioned}
 
 
@@ -123,13 +123,13 @@ pca$center <- pca$scale * 0
 ndvi_scores <- predict(
   ndvi_stdz, pca,
   index = 1:npc,
-  filename = 'output/ndvi_scores.grd',
+  filename = 'results/ndvi_scores.grd',
   overwrite = TRUE)
 plot(ndvi_scores)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-8]({{ site.baseurl }}/images/unnamed-chunk-8-1.png)
+![plot of chunk unnamed-chunk-8]({{ site.baseurl }}/images/pca/unnamed-chunk-8-1.png)
 {:.captioned}
 
 
@@ -165,7 +165,7 @@ ndvi_dev <- overlay(
   fun = function(x, y) {
     x - y %*% t(pca$loadings[, 1:npc])
   },
-  filename = 'output/ndvi_dev.grd',
+  filename = 'results/ndvi_dev.grd',
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
 ~~~
@@ -184,7 +184,7 @@ animate(ndvi_dev, pause = 0.5, n = 1)
 {:.input}
 
 
-![]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+![plot of ndvi_dev_animation]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
 {:.captioned}
 
 ===
@@ -202,6 +202,6 @@ plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/pca/unnamed-chunk-12-1.png)
 {:.captioned}
 
