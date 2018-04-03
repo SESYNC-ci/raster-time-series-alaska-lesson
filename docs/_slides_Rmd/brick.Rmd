@@ -178,7 +178,7 @@ sf::st_is_valid(scar, reason = TRUE)
 
 ===
 
-Fortuantely, we have the rasterized version from another source.
+Fortunately, we have the rasterized version from another source.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 scar_zone <- raster(

@@ -260,7 +260,7 @@ noBreaks. = FALSE, : Nested shells at or near point 75336.442504882812
 
 ===
 
-Fortuantely, we have the rasterized version from another source.
+Fortunately, we have the rasterized version from another source.
 
 
 ~~~r
