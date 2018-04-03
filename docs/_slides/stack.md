@@ -65,7 +65,7 @@ plot(ndvi)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-4]({{ site.baseurl }}/images/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-4]({{ site.baseurl }}/images/stack/unnamed-chunk-4-1.png)
 {:.captioned}
 
 
@@ -183,7 +183,7 @@ plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-10]({{ site.baseurl }}/images/unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-10]({{ site.baseurl }}/images/stack/unnamed-chunk-10-1.png)
 {:.captioned}
 
 
@@ -205,7 +205,7 @@ plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/stack/unnamed-chunk-12-1.png)
 {:.captioned}
 
 
@@ -245,7 +245,7 @@ plot(diff_ndvi)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-15]({{ site.baseurl }}/images/unnamed-chunk-15-1.png)
+![plot of chunk unnamed-chunk-15]({{ site.baseurl }}/images/stack/unnamed-chunk-15-1.png)
 {:.captioned}
 
 
@@ -259,7 +259,7 @@ hist(diff_ndvi)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-16]({{ site.baseurl }}/images/unnamed-chunk-16-1.png)
+![plot of chunk unnamed-chunk-16]({{ site.baseurl }}/images/stack/unnamed-chunk-16-1.png)
 {:.captioned}
 
 
@@ -276,7 +276,7 @@ plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-17]({{ site.baseurl }}/images/unnamed-chunk-17-1.png)
+![plot of chunk unnamed-chunk-17]({{ site.baseurl }}/images/stack/unnamed-chunk-17-1.png)
 {:.captioned}
 
 
@@ -321,7 +321,7 @@ hist(diff_ndvi_stdz, breaks = 20)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-20]({{ site.baseurl }}/images/unnamed-chunk-20-1.png)
+![plot of chunk unnamed-chunk-20]({{ site.baseurl }}/images/stack/unnamed-chunk-20-1.png)
 {:.captioned}
 
 
@@ -336,6 +336,6 @@ plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-21]({{ site.baseurl }}/images/unnamed-chunk-21-1.png)
+![plot of chunk unnamed-chunk-21]({{ site.baseurl }}/images/stack/unnamed-chunk-21-1.png)
 {:.captioned}
 

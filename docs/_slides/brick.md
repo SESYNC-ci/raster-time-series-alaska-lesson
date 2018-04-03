@@ -37,7 +37,7 @@ plot(subset(ndvi, 1:2))
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/unnamed-chunk-3-1.png)
+![plot of chunk unnamed-chunk-3]({{ site.baseurl }}/images/brick/unnamed-chunk-3-1.png)
 {:.captioned}
 
 
@@ -57,7 +57,7 @@ For training purposes, again crop the NDVI data to the bounding box of the wildf
 
 ~~~r
 ndvi <- crop(ndvi, burn_bbox,
-  filename = 'output/crop_alask_ndvi.grd',
+  filename = 'results/crop_alask_ndvi.grd',
   overwrite = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
@@ -77,7 +77,7 @@ dimensions  : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
 resolution  : 1000.045, 999.9566  (x, y)
 extent      : 68336.16, 219342.9, 1772970, 1846967  (xmin, xmax, ymin, ymax)
 coord. ref. : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
-data source : /home/Ian/training/raster-time-series-alaska-lesson/output/crop_alask_ndvi.grd 
+data source : /home/Ian/training/raster-time-series-alaska-lesson/results/crop_alask_ndvi.grd 
 names       : Jan.01.2005, Jan.17.2005, Feb.02.2005, Feb.18.2005, Mar.06.2005, Mar.22.2005, Apr.07.2005, Apr.23.2005, May.09.2005, May.25.2005, Jun.10.2005, Jun.26.2005, Jul.12.2005, Jul.28.2005, Aug.13.2005, ... 
 min values  :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,    -0.09540,    -0.03910,    -0.11290,    -0.09390,    -0.15520,    -0.18400,    -0.16780,    -0.18000,    -0.17200,    -0.18600, ... 
 max values  :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 
@@ -117,7 +117,7 @@ plot(ndvi[[idx]])
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-8]({{ site.baseurl }}/images/unnamed-chunk-8-1.png)
+![plot of chunk unnamed-chunk-8]({{ site.baseurl }}/images/brick/unnamed-chunk-8-1.png)
 {:.captioned}
 
 
@@ -179,7 +179,7 @@ ggplot(pixel,
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
-![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/brick/unnamed-chunk-12-1.png)
 {:.captioned}
 
 
@@ -215,7 +215,7 @@ Typically we could convert simple features to raster with the `rasterize` functi
 scar_geom <- as(st_geometry(scar), 'Spatial')
 scar_zone <- rasterize(scar_geom, ndvi,
   background = 0,
-  filename = 'output/scar.grd',
+  filename = 'results/scar.grd',
   overwrite = TRUE)
 ~~~
 {:.input}
@@ -228,6 +228,27 @@ scar_zone <- rasterize(scar_geom, ndvi,
 sf::st_is_valid(scar, reason = TRUE)
 ~~~
 {:.input}
+
+~~~
+Warning in evalq((function (..., call. = TRUE, immediate. = FALSE,
+noBreaks. = FALSE, : Self-intersection at or near point 209342.45385742188
+1824967.8842773438
+~~~
+{:.output}
+
+~~~
+Warning in evalq((function (..., call. = TRUE, immediate. = FALSE,
+noBreaks. = FALSE, : Self-intersection at or near point 181341.19775390625
+1775970.0076904297
+~~~
+{:.output}
+
+~~~
+Warning in evalq((function (..., call. = TRUE, immediate. = FALSE,
+noBreaks. = FALSE, : Nested shells at or near point 75336.442504882812
+1815968.2742919922
+~~~
+{:.output}
 
 ~~~
 [1] "Self-intersection[209342.453857422 1824967.88427734]"
@@ -291,7 +312,7 @@ ggplot(scar_zone,
 ~~~
 {:.input}
 
-![plot of chunk unnamed-chunk-19]({{ site.baseurl }}/images/unnamed-chunk-19-1.png)
+![plot of chunk unnamed-chunk-19]({{ site.baseurl }}/images/brick/unnamed-chunk-19-1.png)
 {:.captioned}
 
 

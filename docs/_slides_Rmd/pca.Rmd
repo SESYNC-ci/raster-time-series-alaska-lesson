@@ -35,7 +35,7 @@ The `layerStats` function only evaluates standard statistical summaries. The `ca
 ndvi_std <- sqrt(diag(ndvi_cov))
 ndvi_stdz <- calc(ndvi,
   function(x) (x - ndvi_mean) / ndvi_std,
-  filename = 'output/ndvi_stdz.grd',
+  filename = 'results/ndvi_stdz.grd',
   overwrite = TRUE)
 ```
 
@@ -108,7 +108,7 @@ pca$center <- pca$scale * 0
 ndvi_scores <- predict(
   ndvi_stdz, pca,
   index = 1:npc,
-  filename = 'output/ndvi_scores.grd',
+  filename = 'results/ndvi_scores.grd',
   overwrite = TRUE)
 plot(ndvi_scores)
 ```
@@ -144,7 +144,7 @@ ndvi_dev <- overlay(
   fun = function(x, y) {
     x - y %*% t(pca$loadings[, 1:npc])
   },
-  filename = 'output/ndvi_dev.grd',
+  filename = 'results/ndvi_dev.grd',
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
 ```

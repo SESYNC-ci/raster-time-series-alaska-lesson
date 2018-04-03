@@ -44,7 +44,7 @@ For training purposes, again crop the NDVI data to the bounding box of the wildf
 
 ```{r, title = '{{ site.handouts[0] }}'}
 ndvi <- crop(ndvi, burn_bbox,
-  filename = 'output/crop_alask_ndvi.grd',
+  filename = 'results/crop_alask_ndvi.grd',
   overwrite = TRUE)
 ```
 
@@ -166,7 +166,7 @@ Typically we could convert simple features to raster with the `rasterize` functi
 scar_geom <- as(st_geometry(scar), 'Spatial')
 scar_zone <- rasterize(scar_geom, ndvi,
   background = 0,
-  filename = 'output/scar.grd',
+  filename = 'results/scar.grd',
   overwrite = TRUE)
 ```
 
