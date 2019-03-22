@@ -1,7 +1,7 @@
 # R
 .Rhistory
 .Rproj.user
-docs/_slides_Rmd/cache
+cache/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -9,3 +9,4 @@ docs/_slides_Rmd/cache
 # Jekyll
 docs/.bundle
 docs/_site
+docs/Gemfile.lock
