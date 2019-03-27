@@ -155,8 +155,8 @@ The first several principal components account for most of the variance in the
 data, so approximate the NDVI time series by "un-projecting" the scores.
 
 Mathematically, the calculation for this approximation at each time slice,
-$$\mathbf{X_t}$$, is a linear combination of each score "map", $$\bm{T}_i$$, with
-time-varying loadings, $$\W_{i,t}$$.
+$$\mathbf{X_t}$$, is a linear combination of each score "map", $$\mathbf{T}_i$$, with
+time-varying loadings, $$W_{i,t}$$.
 {:.notes}
 
 $$
