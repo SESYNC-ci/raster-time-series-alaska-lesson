@@ -1,12 +1,15 @@
-## Import Clarification 
+## Logistics
 
+library(sf)
 library(raster)
-library(modules)
-import('magrittr', '%>%')
+library(ggplot2)
+
+out <- 'outputs_raster_ts'
+dir.create(out, showWarnings = FALSE)
 
 ## Raster Stacks 
 
-ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
+ndvi_yrly <- ...('data/r_ndvi_*.tif')
 
 ndvi <- ...
 names(ndvi) <- c(
@@ -17,15 +20,14 @@ names(ndvi) <- c(
 
 ## Wildfires in Alaska 
 
-import('sf', 'read_sf', 'st_geometry',
-  'st_bbox')
 scar <- ...(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
 plot(...)
 plot(..., add = TRUE)
 
-burn_bbox <- ...
+burn_bbox <-
+  ...
 ndvi <- ...(ndvi, burn_bbox)
 
 ## Pixel Change 
@@ -33,11 +35,15 @@ ndvi <- ...(ndvi, burn_bbox)
 diff_ndvi <- ...
 names(diff_ndvi) <- 'Difference'
 
-diff_ndvi_mean <- ...(diff_ndvi, 'mean')
-diff_ndvi_sd <- cellStats(diff_ndvi, 'sd')
+diff_ndvi_mean <-
+  ...(diff_ndvi, 'mean')
+diff_ndvi_sd <-
+  cellStats(diff_ndvi, 'sd')
 
-diff_ndvi_stdz <- ...
-names(diff_ndvi_stdz) <- 'Standardized Difference'
+diff_ndvi_stdz <-
+  ... /
+  ...
+names(diff_ndvi_stdz) <- 'Std. Diff.'
 
 ## Raster Time Series 
 
@@ -54,7 +60,7 @@ names(ndvi) <- format(dates, '%b %d %Y')
 ## Raster Bricks 
 
 ndvi <- crop(ndvi, ...,
-  ... ,
+  ... = file.path(out, 'crop_alaska_ndvi.grd'),
   overwrite = TRUE)
 
 ## Pixel Time Series 
@@ -76,12 +82,10 @@ normal_pixel <- data.frame(
   Type = 'normal',
   NDVI = c(ndvi[pixel]))
 
-import('ggplot2', 'ggplot', 'aes',
-  'geom_line')
 pixel <- rbind(normal_pixel, scar_pixel)
 ggplot(pixel,
-  aes(...,
-    group = ..., col = ...)) +
+       aes(x = ..., y = ...,
+           group = ..., col = ...)) +
   geom_line()
 
 ## Zonal Averages 
@@ -91,8 +95,8 @@ scar_zone <- ...(
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 
-scar_ndvi <- ...(ndvi,
-  scar_zone, fun = "mean")
+scar_ndvi <-
+  ...(ndvi, scar_zone, ...)
 
 zone <- factor(scar_ndvi[, 1])
 scar_ndvi <- scar_ndvi[, -1]
@@ -112,7 +116,7 @@ ndvi_cor <- cov2cor(ndvi_cov)
 ndvi_std <- sqrt(diag(ndvi_cov))
 ndvi_stdz <- ...(ndvi,
   ... ,
-  filename = 'results/ndvi_stdz.grd',
+  filename = file.path(out, 'ndvi_stdz.grd'),
   overwrite = TRUE)
 
 pca <- ...
@@ -125,15 +129,16 @@ loading <- data.frame(
   Loading = ...
 )
 
-ggplot(loading, aes(
-  ...)) +
+ggplot(loading,
+       aes(...,
+           ...)) +
   geom_line()
 
 pca$center <- pca$scale * 0
 ndvi_scores <- ...(
   ...
   index = 1:npc,
-  filename = 'results/ndvi_scores.grd',
+  filename = file.path(out, 'ndvi_scores.grd'),
   overwrite = TRUE)
 plot(ndvi_scores)
 
@@ -142,7 +147,7 @@ ndvi_dev <- ...(
   fun = ... {
     ...
   },
-  filename = 'results/ndvi_dev.grd',
+  filename = file.path(out, 'ndvi_dev.grd'),
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
 

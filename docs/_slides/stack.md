@@ -1,6 +1,4 @@
 ---
-editor_options: 
-  chunk_output_type: console
 ---
 
 ## Raster upon Raster
@@ -30,16 +28,19 @@ The layers of a "stack" can refer to data from separate files, or even a mix of
 data on disk and data in memory.
 
 
+
 ~~~r
 ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
-ndvi_yrly
+> ndvi_yrly
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 [1] "data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif"
@@ -51,6 +52,7 @@ ndvi_yrly
 ===
 
 
+
 ~~~r
 ndvi <- stack(ndvi_yrly)
 names(ndvi) <- c(
@@ -60,14 +62,13 @@ names(ndvi) <- c(
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
-plot(ndvi)
+> plot(ndvi)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-4]({{ site.baseurl }}/images/stack/unnamed-chunk-4-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-4-1.png)
 {:.captioned}
-
 
 ===
 
@@ -76,10 +77,12 @@ CRS is missing: it is quite possible to stack files with different
 projections. They only have to share a common extent and resolution.
 
 
+
 ~~~r
-raster(ndvi, 1)
+> raster(ndvi, 1)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 class       : RasterLayer 
@@ -87,7 +90,7 @@ dimensions  : 1951, 2441, 4762391  (nrow, ncol, ncell)
 resolution  : 1000.045, 999.9567  (x, y)
 extent      : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
-data source : /data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
+data source : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
 names       : Avg.NDVI.2002 
 values      : -0.3, 0.8713216  (min, max)
 ~~~
@@ -101,16 +104,19 @@ Set the CRS using the [EPSG code
 Equal Area projection of Alaska using the NAD38 datum.
 
 
+
 ~~~r
 crs(ndvi) <- '+init=epsg:3338'
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
-raster(ndvi, 0)
+> raster(ndvi, 0)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 class       : RasterLayer 
@@ -128,15 +134,17 @@ The `ndvi` object only takes up a tiny amount of memory. The pixel values
 take up much more space on disk, as you can see in the file browser.
 
 
+
 ~~~r
-print(object.size(ndvi),
-  units = 'KB',
-  standard = 'SI')
+> print(object.size(ndvi),
++   units = 'KB',
++   standard = 'SI')
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
-29.4 kB
+29.6 kB
 ~~~
 {:.output}
 
@@ -147,10 +155,12 @@ Why so small? The `ndvi` object is only metadata and a pointer to where the
 pixel values are saved on disk.
 
 
+
 ~~~r
-inMemory(ndvi)
+> inMemory(ndvi)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 [1] FALSE
@@ -158,9 +168,10 @@ inMemory(ndvi)
 {:.output}
 
 
-Whereas `read.csv()` would load the named file into memory, the [raster](){:.rlib} library handles files like a database where
-possible. The values can be accessed, to make those plots for example, but are
-not held in memory. This is the key to working with deep stacks of large rasters.
+Whereas `read.csv()` would load the named file into memory, the
+[raster](){:.rlib} library handles files like a database where possible. The
+values can be accessed, to make those plots for example, but are not held in
+memory. This is the key to working with deep stacks of large rasters.
 {:.notes}
 
 ===
@@ -172,9 +183,8 @@ Three large fires that burned during this period (their locations are in a
 shapefile) occured within boreal forest areas of central Alaska.
 
 
+
 ~~~r
-import('sf', 'read_sf', 'st_geometry',
-  'st_bbox')
 scar <- read_sf(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
@@ -182,42 +192,45 @@ plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
-
-![plot of chunk unnamed-chunk-10]({{ site.baseurl }}/images/stack/unnamed-chunk-10-1.png)
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-10-1.png)
 {:.captioned}
-
 
 ===
 
-For faster processing in this lesson, crop the NDVI imagery to the smaller extent of the shapefile.
+For faster processing in this lesson, crop the NDVI imagery to the smaller
+extent of the shapefile.
+
 
 
 ~~~r
-burn_bbox <- extent(matrix(st_bbox(scar), 2))
+burn_bbox <-
+  extent(matrix(st_bbox(scar), 2))
 ndvi <- crop(ndvi, burn_bbox)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
-plot(ndvi[[1]], ext = burn_bbox)
-plot(st_geometry(scar), add = TRUE)
+> plot(ndvi[[1]], ext = burn_bbox)
+> plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-12]({{ site.baseurl }}/images/stack/unnamed-chunk-12-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-12-1.png)
 {:.captioned}
-
 
 ===
 
-Notice, however, that the NDVI values are now stored in memory. That's okay for this part of the lesson; we'll see the alternative shortly.
+Notice, however, that the NDVI values are now stored in memory. That's okay for
+this part of the lesson; we'll see the alternative shortly.
+
 
 
 ~~~r
-inMemory(ndvi)
+> inMemory(ndvi)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 [1] TRUE
@@ -233,6 +246,7 @@ Use element-wise subtration to give a difference raster, where negative values
 indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 
 
+
 ~~~r
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
@@ -240,28 +254,26 @@ names(diff_ndvi) <- 'Difference'
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
-plot(diff_ndvi)
+> plot(diff_ndvi)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-15]({{ site.baseurl }}/images/stack/unnamed-chunk-15-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-15-1.png)
 {:.captioned}
-
 
 ===
 
 The histogram shows clearly that change in NDVI within this corner of Alaska clusters around two modes.
 
 
+
 ~~~r
-hist(diff_ndvi)
+> hist(diff_ndvi)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-16]({{ site.baseurl }}/images/stack/unnamed-chunk-16-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-16-1.png)
 {:.captioned}
-
 
 ===
 
@@ -270,15 +282,14 @@ the differrence. Pixels below "-0.1" mostly belong to the smaller mode, and may
 represent impacts of wildfire.
 
 
+
 ~~~r
-plot(diff_ndvi < -0.1)
-plot(st_geometry(scar), add = TRUE)
+> plot(diff_ndvi < -0.1)
+> plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-17]({{ site.baseurl }}/images/stack/unnamed-chunk-17-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-17-1.png)
 {:.captioned}
-
 
 ===
 
@@ -292,9 +303,12 @@ memory or on disk.
 {:.notes}
 
 
+
 ~~~r
-diff_ndvi_mean <- cellStats(diff_ndvi, 'mean')
-diff_ndvi_sd <- cellStats(diff_ndvi, 'sd')
+diff_ndvi_mean <-
+  cellStats(diff_ndvi, 'mean')
+diff_ndvi_sd <-
+  cellStats(diff_ndvi, 'sd')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
@@ -309,33 +323,34 @@ The difference threshold of "-0.1" appears roughly equivalent to a threshold of
 1 standard deviation below zero.
 
 
+
 ~~~r
-diff_ndvi_stdz <- (diff_ndvi - diff_ndvi_mean) / diff_ndvi_sd
-names(diff_ndvi_stdz) <- 'Standardized Difference'
+diff_ndvi_stdz <-
+  (diff_ndvi - diff_ndvi_mean) /
+  diff_ndvi_sd
+names(diff_ndvi_stdz) <- 'Std. Diff.'
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
 
+
 ~~~r
-hist(diff_ndvi_stdz, breaks = 20)
+> hist(diff_ndvi_stdz, breaks = 20)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-20]({{ site.baseurl }}/images/stack/unnamed-chunk-20-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-20-1.png)
 {:.captioned}
-
 
 ===
 
 Standardizing the pixel values does not change the overal result.
 
 
+
 ~~~r
-plot(diff_ndvi_stdz < -1)
-plot(st_geometry(scar), add = TRUE)
+> plot(diff_ndvi_stdz < -1)
+> plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.input}
-
-![plot of chunk unnamed-chunk-21]({{ site.baseurl }}/images/stack/unnamed-chunk-21-1.png)
+{:.input title="Console"}
+![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-21-1.png)
 {:.captioned}
-

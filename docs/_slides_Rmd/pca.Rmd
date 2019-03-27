@@ -1,11 +1,11 @@
 ---
-editor_options: 
-  chunk_output_type: console
 ---
 
 ## Eliminating Time
 
-Because changes to NDVI at each pixel follow a similar pattern over the course of a year, the slices are highly correlated. Consider representing the NDVI values as a simple matrix with
+Because changes to NDVI at each pixel follow a similar pattern over the course
+of a year, the slices are highly correlated. Consider representing the NDVI
+values as a simple matrix with
 
 - each time slice as a variable
 - each pixel as an observation
@@ -17,7 +17,8 @@ covariance matrix or singular-value decomposition of the entire dataset.
 
 ===
 
-To perform PCA on raster data, it's efficient to use specialized tools that calculate a covariance matrix without reading in that big data matrix.
+To perform PCA on raster data, it's efficient to use specialized tools that
+calculate a covariance matrix without reading in that big data matrix.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 ndvi_lS <- layerStats(
@@ -29,19 +30,23 @@ ndvi_cor <- cov2cor(ndvi_cov)
 
 ===
 
-The `layerStats` function only evaluates standard statistical summaries. The `calc` function however can apply user defined functions over or across raster layers.
+The `layerStats` function only evaluates standard statistical summaries. The
+`calc` function however can apply user defined functions over or across raster
+layers.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 ndvi_std <- sqrt(diag(ndvi_cov))
 ndvi_stdz <- calc(ndvi,
   function(x) (x - ndvi_mean) / ndvi_std,
-  filename = 'results/ndvi_stdz.grd',
+  filename = file.path(out, 'ndvi_stdz.grd'),
   overwrite = TRUE)
 ```
 
 ===
 
-Standardizing the data removes the large seasonal swing, but not the correlation between "variables", i.e. between pixels in different time slices. Only the correlation matters for PCA.
+Standardizing the data removes the large seasonal swing, but not the correlation
+between "variables", i.e. between pixels in different time slices. Only the
+correlation matters for PCA.
 
 ```{r, eval = FALSE}
 animate(ndvi_stdz, pause = 0.5, n = 1)
@@ -75,32 +80,36 @@ plot(pca)
 ===
 
 Principal component "loadings" correspond to the weight each time slice
-contributes to each component. The first principal component is a more-or-less
-equally weighted combination of all time slices, like an average.
+contributes to each component.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 npc <- 4
 loading <- data.frame(
   Date = rep(dates, npc), 
-  PC = factor(rep(1:npc, each = length(dates))),
+  PC = factor(
+    rep(1:npc, each = length(dates))
+  ),
   Loading = c(pca$loadings[, 1:npc])
 )
 ```
 
 ===
 
+The first principal component is a more-or-less equally weighted combination of
+all time slices, like an average.
+
 ```{r, title = '{{ site.handouts[0] }}'}
-ggplot(loading, aes(
-  x = Date, y = Loading, col = PC)) +
+ggplot(loading,
+       aes(x = Date, y = Loading,
+           col = PC)) +
   geom_line()
 ```
 
 ===
 
-The principal component scores are a projection of the NDVI values at each time
-point onto the components. The calculation is matrix multiplation on the NDVI
-time-series, which you may not be able to do in memory. The [raster](){:.rlib}
-package `predict` wrapper carries the PCA output's `predict` method through to
+The principal component scores are projections of the NDVI values at each time
+point onto the components. Memory limitation may foil a straightforward attempt at this calculation, but the [raster](){:.rlib}
+package `predict` wrapper carries the princomp `predict` method through to
 the time series for each pixel.
 
 ```{r, title = '{{ site.handouts[0] }}'}
@@ -108,7 +117,7 @@ pca$center <- pca$scale * 0
 ndvi_scores <- predict(
   ndvi_stdz, pca,
   index = 1:npc,
-  filename = 'results/ndvi_scores.grd',
+  filename = file.path(out, 'ndvi_scores.grd'),
   overwrite = TRUE)
 plot(ndvi_scores)
 ```
@@ -130,13 +139,13 @@ time-varying loadings, $$\W_{i,t}$$.
 {:.notes}
 
 $$
-\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \hdots
+\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 +~...
 $$
 
 ===
 
-The flexible `overlay` function allows you to pass a custom function for pixel-wise calculations
-on one or more of the main raster objects.
+The flexible `overlay` function allows you to pass a custom function for
+pixel-wise calculations on one or more of the main raster objects.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 ndvi_dev <- overlay(
@@ -144,7 +153,7 @@ ndvi_dev <- overlay(
   fun = function(x, y) {
     x - y %*% t(pca$loadings[, 1:npc])
   },
-  filename = 'results/ndvi_dev.grd',
+  filename = file.path(out, 'ndvi_dev.grd'),
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
 ```
@@ -174,8 +183,8 @@ magick::image_write(
 ===
 
 Based on the time variation in the loadings for principal components 2 and 3, we
-might guess that they correspond to one longer-term and one shorter-term departure from
-the seasonal NDVI variation within this extent.
+might guess that they correspond to one longer-term and one shorter-term
+departure from the seasonal NDVI variation within this extent.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 plot(

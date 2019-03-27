@@ -1,6 +1,4 @@
 ---
-editor_options: 
-  chunk_output_type: console
 ---
 
 ## Raster upon Raster
@@ -91,9 +89,10 @@ pixel values are saved on disk.
 inMemory(ndvi)
 ```
 
-Whereas `read.csv()` would load the named file into memory, the [raster](){:.rlib} library handles files like a database where
-possible. The values can be accessed, to make those plots for example, but are
-not held in memory. This is the key to working with deep stacks of large rasters.
+Whereas `read.csv()` would load the named file into memory, the
+[raster](){:.rlib} library handles files like a database where possible. The
+values can be accessed, to make those plots for example, but are not held in
+memory. This is the key to working with deep stacks of large rasters.
 {:.notes}
 
 ===
@@ -105,8 +104,6 @@ Three large fires that burned during this period (their locations are in a
 shapefile) occured within boreal forest areas of central Alaska.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-import('sf', 'read_sf', 'st_geometry',
-  'st_bbox')
 scar <- read_sf(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
@@ -116,10 +113,12 @@ plot(st_geometry(scar), add = TRUE)
 
 ===
 
-For faster processing in this lesson, crop the NDVI imagery to the smaller extent of the shapefile.
+For faster processing in this lesson, crop the NDVI imagery to the smaller
+extent of the shapefile.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-burn_bbox <- extent(matrix(st_bbox(scar), 2))
+burn_bbox <-
+  extent(matrix(st_bbox(scar), 2))
 ndvi <- crop(ndvi, burn_bbox)
 ```
 ```{r}
@@ -129,7 +128,8 @@ plot(st_geometry(scar), add = TRUE)
 
 ===
 
-Notice, however, that the NDVI values are now stored in memory. That's okay for this part of the lesson; we'll see the alternative shortly.
+Notice, however, that the NDVI values are now stored in memory. That's okay for
+this part of the lesson; we'll see the alternative shortly.
 
 ```{r}
 inMemory(ndvi)
@@ -181,8 +181,10 @@ memory or on disk.
 {:.notes}
 
 ```{r, title = '{{ site.handouts[0] }}'}
-diff_ndvi_mean <- cellStats(diff_ndvi, 'mean')
-diff_ndvi_sd <- cellStats(diff_ndvi, 'sd')
+diff_ndvi_mean <-
+  cellStats(diff_ndvi, 'mean')
+diff_ndvi_sd <-
+  cellStats(diff_ndvi, 'sd')
 ```
 
 ===
@@ -195,8 +197,10 @@ The difference threshold of "-0.1" appears roughly equivalent to a threshold of
 1 standard deviation below zero.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-diff_ndvi_stdz <- (diff_ndvi - diff_ndvi_mean) / diff_ndvi_sd
-names(diff_ndvi_stdz) <- 'Standardized Difference'
+diff_ndvi_stdz <-
+  (diff_ndvi - diff_ndvi_mean) /
+  diff_ndvi_sd
+names(diff_ndvi_stdz) <- 'Std. Diff.'
 ```
 ```{r}
 hist(diff_ndvi_stdz, breaks = 20)

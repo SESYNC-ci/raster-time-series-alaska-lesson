@@ -1,6 +1,4 @@
 ---
-editor_options: 
-  chunk_output_type: console
 ---
 
 ## Raster Time Series
@@ -18,6 +16,8 @@ crs(ndvi) <- '+init=epsg:3338'
 
 ===
 
+Lacking other metadata, extract the date of each image from its filename.
+
 ```{r, title = '{{ site.handouts[0] }}'}
 dates <- as.Date(
   sub('alaska_NDVI_', '', names(ndvi)),
@@ -29,26 +29,35 @@ names(ndvi) <- format(dates, '%b %d %Y')
 plot(subset(ndvi, 1:2))
 ```
 
+===
+
 ## Raster Bricks
 
 A `RasterBrick` representation of tightly integrated raster layers, such as a
 time series of remote sensing data from sequential overflights, has advantages
 for speed but limitations on flexibility.
 
-A `RasterStack` is more flexible because it can mix values stored on disk with those in memory. Adding a layer of in-memory values to a RasterBrick causes the entire brick to be loaded into memory, which may not be possible given the available memory.
+A `RasterStack` is more flexible because it can mix values stored on disk with
+those in memory. Adding a layer of in-memory values to a RasterBrick causes the
+entire brick to be loaded into memory, which may not be possible given the
+available memory.
 {:.notes}
 
 ===
 
-For training purposes, again crop the NDVI data to the bounding box of the wildfires shapefile. But this time, avoid reading the values into memory.
+For training purposes, again crop the NDVI data to the bounding box of the
+wildfires shapefile. But this time, avoid reading the values into memory.
 
 ```{r, title = '{{ site.handouts[0] }}'}
 ndvi <- crop(ndvi, burn_bbox,
-  filename = 'results/crop_alask_ndvi.grd',
+  filename = file.path(out, 'crop_alaska_ndvi.grd'),
   overwrite = TRUE)
 ```
 
-Notice that `crop` creates a `RasterBrick`. In fact, we have been working with a `RasterBrick` in memory since first using `crop`.
+===
+
+Notice that `crop` creates a `RasterBrick`. In fact, we have been working with a
+`RasterBrick` in memory since first using `crop`.
 
 ```{r}
 ndvi
@@ -56,7 +65,7 @@ ndvi
 
 ===
 
-## So many data
+## So Many Data
 
 The immediate challenge is trying to represent the data in ways we can explore
 and interpret the characteristics of wildfire visible by remote sensing.
@@ -129,12 +138,10 @@ normal_pixel <- data.frame(
 Join your haphazard samples together for comparison as time series.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-import('ggplot2', 'ggplot', 'aes',
-  'geom_line')
 pixel <- rbind(normal_pixel, scar_pixel)
 ggplot(pixel,
-  aes(x = Date, y = NDVI,
-    group = cell, col = Type)) +
+       aes(x = Date, y = NDVI,
+           group = cell, col = Type)) +
   geom_line()
 ```
 
@@ -154,16 +161,19 @@ Currently we have raster data (`ndvi`) and vector data (`scar`). In order to
 aggregate by polygon, we have to join these two datasets. There are two
 approaches. 1) Treat the raster data as POINT geometries in a table and perform
 a spatial join to the table with POLYGON geometries. 2) Turn the polygons into a
-raster and summarize the raster masked for each polygon. Let's persue option 2, but take a shortcut due to the presence of invalid geometries in the shapefile.
+raster and summarize the raster masked for each polygon. Let's persue option 2,
+but take a shortcut due to the presence of invalid geometries in the shapefile.
 {:.notes}
 
 ===
 
-Typically we could convert simple features to raster with the `rasterize` function, but not all geometries are well defined.
+Typically we could convert simple features to raster with the `rasterize`
+function, but not all these geometries are well defined.
 
-```{r, eval = FALSE}
+```{r, title = "Do Not Eval", eval = FALSE}
 # Does not work, due to invalid geometries.
-scar_geom <- as(st_geometry(scar), 'Spatial')
+scar_geom <-
+  as(st_geometry(scar), 'Spatial')
 scar_zone <- rasterize(scar_geom, ndvi,
   background = 0,
   filename = 'results/scar.grd',
@@ -172,17 +182,10 @@ scar_zone <- rasterize(scar_geom, ndvi,
 
 ===
 
-```{r}
-sf::st_is_valid(scar, reason = TRUE)
-```
-
-===
-
 Fortunately, we have the rasterized version from another source.
 
 ```{r, title = '{{ site.handouts[0] }}'}
-scar_zone <- raster(
-  'data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif')
+scar_zone <- raster('data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif')
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 ```
@@ -192,8 +195,8 @@ scar_zone <- crop(scar_zone, ndvi)
 The `zonal` function calculates `fun` over each zone
 
 ```{r, title = '{{ site.handouts[0] }}'}
-scar_ndvi <- zonal(ndvi,
-  scar_zone, fun = "mean")
+scar_ndvi <-
+  zonal(ndvi, scar_zone, "mean")
 ```
 
 ===
@@ -211,17 +214,19 @@ scar_zone <- data.frame(
 
 ===
 
-What appears to be the most pronounced signal in this view is an early loss of greenness compared to the background NDVI.
+What appears to be the most pronounced signal in this view is an early loss of
+greenness compared to the background NDVI.
 
 ```{r}
 ggplot(scar_zone,
-  aes(x = Date, y = NDVI, col = Zone)) +
+       aes(x = Date, y = NDVI,
+           col = Zone)) +
   geom_line()
 ```
 
 ===
 
-Zonal statistics
+## Zonal Statistics
 
 - provide a very clean reduction of raster time-series for easy vizualization
 - require pre-defined zones!
