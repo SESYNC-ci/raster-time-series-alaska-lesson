@@ -9,6 +9,9 @@ handouts:
   - data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed
   - data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif
   - data/r_ndvi_2001_2009_filling6__STA_year9_Amplitude0.tif
+  - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.shp
+  - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.shx
+  - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.dbf
   - data/README.md
 tag: v0.0
 lesson: 3
