@@ -32,5 +32,5 @@ library(ggplot2)
 out <- 'outputs_raster_ts'
 dir.create(out, showWarnings = FALSE)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 

@@ -20,7 +20,7 @@ covariance matrix or singular-value decomposition of the entire dataset.
 To perform PCA on raster data, it's efficient to use specialized tools that
 calculate a covariance matrix without reading in that big data matrix.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi_lS <- layerStats(
   ndvi, 'cov', na.rm = TRUE)
 ndvi_mean <- ndvi_lS[['mean']]
@@ -34,7 +34,7 @@ The `layerStats` function only evaluates standard statistical summaries. The
 `calc` function however can apply user defined functions over or across raster
 layers.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi_std <- sqrt(diag(ndvi_cov))
 ndvi_stdz <- calc(ndvi,
   function(x) (x - ndvi_mean) / ndvi_std,
@@ -62,7 +62,7 @@ magick::image_write(
   magick::image_animate(img, fps = 2),
   'docs/images/ndvi_stdz_animation.gif')
 ```
-![plot of ndvi_stdz_animation]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+![plot of ndvi_stdz_animation]({% include asset.html path="images/ndvi_stdz_animation.gif" %})
 {:.captioned}
 
 ===
@@ -72,7 +72,7 @@ which is just a 23 by 23 matrix of pairwise correlations between the 23 time
 slices. The plot method of the output shows the variance among pixels, not at
 each time slice, but on each principal component.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 pca <- princomp(covmat = ndvi_cor)
 plot(pca)
 ```
@@ -82,7 +82,7 @@ plot(pca)
 Principal component "loadings" correspond to the weight each time slice
 contributes to each component.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 npc <- 4
 loading <- data.frame(
   Date = rep(dates, npc), 
@@ -98,7 +98,7 @@ loading <- data.frame(
 The first principal component is a more-or-less equally weighted combination of
 all time slices, like an average.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ggplot(loading,
        aes(x = Date, y = Loading,
            col = PC)) +
@@ -112,7 +112,7 @@ point onto the components. Memory limitation may foil a straightforward attempt 
 package `predict` wrapper carries the princomp `predict` method through to
 the time series for each pixel.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 pca$center <- pca$scale * 0
 ndvi_scores <- predict(
   ndvi_stdz, pca,
@@ -147,7 +147,7 @@ $$
 The flexible `overlay` function allows you to pass a custom function for
 pixel-wise calculations on one or more of the main raster objects.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi_dev <- overlay(
   ndvi_stdz, ndvi_scores,
   fun = function(x, y) {
@@ -177,7 +177,7 @@ magick::image_write(
   magick::image_animate(img, fps = 2),
   'docs/images/ndvi_dev_animation.gif')
 ```
-![plot of ndvi_dev_animation]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+![plot of ndvi_dev_animation]({% include asset.html path="images/ndvi_dev_animation.gif" %})
 {:.captioned}
 
 ===
@@ -186,7 +186,7 @@ Based on the time variation in the loadings for principal components 2 and 3, we
 might guess that they correspond to one longer-term and one shorter-term
 departure from the seasonal NDVI variation within this extent.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 plot(
   ndvi_scores[[2]] < -2 |
   ndvi_scores[[3]] < -2)

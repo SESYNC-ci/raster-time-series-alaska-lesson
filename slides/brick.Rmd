@@ -7,7 +7,7 @@ Take a closer look at NDVI using products covering 16 day periods in 2005. These
 images are stored as separate files on disk, all having the same extent and
 resolution.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi_16day <- Sys.glob(
   'data/NDVI_alaska_2005/*.tif')
 ndvi <- stack(ndvi_16day)
@@ -18,7 +18,7 @@ crs(ndvi) <- '+init=epsg:3338'
 
 Lacking other metadata, extract the date of each image from its filename.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 dates <- as.Date(
   sub('alaska_NDVI_', '', names(ndvi)),
   '%Y_%m_%d')
@@ -48,7 +48,7 @@ available memory.
 For training purposes, again crop the NDVI data to the bounding box of the
 wildfires shapefile. But this time, avoid reading the values into memory.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi <- crop(ndvi, burn_bbox,
   filename = file.path(out, 'crop_alaska_ndvi.grd'),
   overwrite = TRUE)
@@ -84,7 +84,7 @@ magick::image_write(
   magick::image_animate(img, fps = 2),
   'docs/images/ndvi_animation.gif')
 ```
-![plot of ndvi_animation]({{ site.baseurl }}/images/ndvi_animation.gif)
+![plot of ndvi_animation]({% include asset.html path="images/ndvi_animation.gif" %})
 {:.captioned}
 
 ===
@@ -95,7 +95,7 @@ Verify that something happened very abruptly (fire!?) by plotting the time
 series at pixels corresponding to locations with dramatic NDVI variation in the
 layer from Aug 13, 2005.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 idx <- match('Aug.13.2005', names(ndvi))
 plot(ndvi[[idx]])
 ```
@@ -111,7 +111,7 @@ pixel
 
 "Hard code" these pixel values into your worksheet
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 pixel <- c(2813, 3720, 2823, 4195, 9910)
 scar_pixel <- data.frame(
   Date = rep(dates, each = length(pixel)),
@@ -124,7 +124,7 @@ scar_pixel <- data.frame(
 
 Repeat the selection with `click` for "normal" looking pixels.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 pixel <- c(1710, 4736, 7374, 1957, 750)
 normal_pixel <- data.frame(
   Date = rep(dates, each = length(pixel)),
@@ -137,7 +137,7 @@ normal_pixel <- data.frame(
 
 Join your haphazard samples together for comparison as time series.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 pixel <- rbind(normal_pixel, scar_pixel)
 ggplot(pixel,
        aes(x = Date, y = NDVI,
@@ -184,7 +184,7 @@ scar_zone <- rasterize(scar_geom, ndvi,
 
 Fortunately, we have the rasterized version from another source.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 scar_zone <- raster('data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif')
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
@@ -194,7 +194,7 @@ scar_zone <- crop(scar_zone, ndvi)
 
 The `zonal` function calculates `fun` over each zone
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 scar_ndvi <-
   zonal(ndvi, scar_zone, "mean")
 ```
@@ -203,7 +203,7 @@ scar_ndvi <-
 
 Rearrange the data for vizualization as a time series.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 zone <- factor(scar_ndvi[, 1])
 scar_ndvi <- scar_ndvi[, -1]
 scar_zone <- data.frame(

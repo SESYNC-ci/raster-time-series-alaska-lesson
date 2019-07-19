@@ -27,7 +27,7 @@ one of two container types:
 The layers of a "stack" can refer to data from separate files, or even a mix of
 data on disk and data in memory.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ```
 ```{r}
@@ -36,7 +36,7 @@ ndvi_yrly
 
 ===
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 ndvi <- stack(ndvi_yrly)
 names(ndvi) <- c(
   'Avg NDVI 2002',
@@ -62,7 +62,7 @@ Set the CRS using the [EPSG code
 3338](http://spatialreference.org/ref/epsg/nad83-alaska-albers/) for an Albers
 Equal Area projection of Alaska using the NAD38 datum.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 crs(ndvi) <- '+init=epsg:3338'
 ```
 ```{r}
@@ -103,7 +103,7 @@ Many and massive wildfires burned in Alaska and the Yukon between 2001 and 2009.
 Three large fires that burned during this period (their locations are in a
 shapefile) occured within boreal forest areas of central Alaska.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 scar <- read_sf(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
@@ -116,7 +116,7 @@ plot(st_geometry(scar), add = TRUE)
 For faster processing in this lesson, crop the NDVI imagery to the smaller
 extent of the shapefile.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 burn_bbox <-
   extent(matrix(st_bbox(scar), 2))
 ndvi <- crop(ndvi, burn_bbox)
@@ -142,7 +142,7 @@ inMemory(ndvi)
 Use element-wise subtration to give a difference raster, where negative values
 indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
 ```
@@ -180,7 +180,7 @@ common functions across large rasters, regardless of whether the values are in
 memory or on disk.
 {:.notes}
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 diff_ndvi_mean <-
   cellStats(diff_ndvi, 'mean')
 diff_ndvi_sd <-
@@ -196,7 +196,7 @@ values are repeated for each cell in the array.
 The difference threshold of "-0.1" appears roughly equivalent to a threshold of
 1 standard deviation below zero.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 diff_ndvi_stdz <-
   (diff_ndvi - diff_ndvi_mean) /
   diff_ndvi_sd

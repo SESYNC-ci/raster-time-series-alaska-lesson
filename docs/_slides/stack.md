@@ -32,14 +32,14 @@ data on disk and data in memory.
 ~~~r
 ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
 ~~~r
 > ndvi_yrly
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -59,15 +59,15 @@ names(ndvi) <- c(
   'Avg NDVI 2002',
   'Avg NDVI 2009')
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
 ~~~r
 > plot(ndvi)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-4-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-4-1.png" %})
 {:.captioned}
 
 ===
@@ -81,18 +81,18 @@ projections. They only have to share a common extent and resolution.
 ~~~r
 > raster(ndvi, 1)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
-class       : RasterLayer 
-dimensions  : 1951, 2441, 4762391  (nrow, ncol, ncell)
-resolution  : 1000.045, 999.9567  (x, y)
-extent      : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
-coord. ref. : NA 
-data source : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
-names       : Avg.NDVI.2002 
-values      : -0.3, 0.8713216  (min, max)
+class      : RasterLayer 
+dimensions : 1951, 2441, 4762391  (nrow, ncol, ncell)
+resolution : 1000.045, 999.9567  (x, y)
+extent     : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
+crs        : NA 
+source     : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
+names      : Avg.NDVI.2002 
+values     : -0.3, 0.8713216  (min, max)
 ~~~
 {:.output}
 
@@ -108,22 +108,22 @@ Equal Area projection of Alaska using the NAD38 datum.
 ~~~r
 crs(ndvi) <- '+init=epsg:3338'
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
 ~~~r
 > raster(ndvi, 0)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
-class       : RasterLayer 
-dimensions  : 1951, 2441, 4762391  (nrow, ncol, ncell)
-resolution  : 1000.045, 999.9567  (x, y)
-extent      : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
-coord. ref. : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
+class      : RasterLayer 
+dimensions : 1951, 2441, 4762391  (nrow, ncol, ncell)
+resolution : 1000.045, 999.9567  (x, y)
+extent     : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
+crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
 ~~~
 {:.output}
 
@@ -140,11 +140,11 @@ take up much more space on disk, as you can see in the file browser.
 +   units = 'KB',
 +   standard = 'SI')
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
-29.6 kB
+31.4 kB
 ~~~
 {:.output}
 
@@ -159,7 +159,7 @@ pixel values are saved on disk.
 ~~~r
 > inMemory(ndvi)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -191,8 +191,8 @@ scar <- read_sf(
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-10-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-10-1.png" %})
 {:.captioned}
 
 ===
@@ -207,7 +207,7 @@ burn_bbox <-
   extent(matrix(st_bbox(scar), 2))
 ndvi <- crop(ndvi, burn_bbox)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
@@ -215,8 +215,8 @@ ndvi <- crop(ndvi, burn_bbox)
 > plot(ndvi[[1]], ext = burn_bbox)
 > plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-12-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-12-1.png" %})
 {:.captioned}
 
 ===
@@ -229,7 +229,7 @@ this part of the lesson; we'll see the alternative shortly.
 ~~~r
 > inMemory(ndvi)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -251,15 +251,15 @@ indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
 ~~~r
 > plot(diff_ndvi)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-15-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-15-1.png" %})
 {:.captioned}
 
 ===
@@ -271,8 +271,8 @@ The histogram shows clearly that change in NDVI within this corner of Alaska clu
 ~~~r
 > hist(diff_ndvi)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-16-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-16-1.png" %})
 {:.captioned}
 
 ===
@@ -287,8 +287,8 @@ represent impacts of wildfire.
 > plot(diff_ndvi < -0.1)
 > plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-17-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-17-1.png" %})
 {:.captioned}
 
 ===
@@ -310,7 +310,7 @@ diff_ndvi_mean <-
 diff_ndvi_sd <-
   cellStats(diff_ndvi, 'sd')
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -330,15 +330,15 @@ diff_ndvi_stdz <-
   diff_ndvi_sd
 names(diff_ndvi_stdz) <- 'Std. Diff.'
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
 ~~~r
 > hist(diff_ndvi_stdz, breaks = 20)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-20-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-20-1.png" %})
 {:.captioned}
 
 ===
@@ -351,6 +351,6 @@ Standardizing the pixel values does not change the overal result.
 > plot(diff_ndvi_stdz < -1)
 > plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/stack/unnamed-chunk-21-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/stack/unnamed-chunk-21-1.png" %})
 {:.captioned}

@@ -29,7 +29,7 @@ ndvi_mean <- ndvi_lS[['mean']]
 ndvi_cov <- ndvi_lS[['covariance']]
 ndvi_cor <- cov2cor(ndvi_cov)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -47,7 +47,7 @@ ndvi_stdz <- calc(ndvi,
   filename = file.path(out, 'ndvi_stdz.grd'),
   overwrite = TRUE)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -61,10 +61,10 @@ correlation matters for PCA.
 ~~~r
 > animate(ndvi_stdz, pause = 0.5, n = 1)
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
-![plot of ndvi_stdz_animation]({{ site.baseurl }}/images/ndvi_stdz_animation.gif)
+![plot of ndvi_stdz_animation]({% include asset.html path="images/ndvi_stdz_animation.gif" %})
 {:.captioned}
 
 ===
@@ -80,8 +80,8 @@ each time slice, but on each principal component.
 pca <- princomp(covmat = ndvi_cor)
 plot(pca)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/pca/unnamed-chunk-5-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/pca/unnamed-chunk-5-1.png" %})
 {:.captioned}
 
 ===
@@ -101,7 +101,7 @@ loading <- data.frame(
   Loading = c(pca$loadings[, 1:npc])
 )
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -117,8 +117,8 @@ ggplot(loading,
            col = PC)) +
   geom_line()
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/pca/unnamed-chunk-7-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/pca/unnamed-chunk-7-1.png" %})
 {:.captioned}
 
 ===
@@ -139,8 +139,8 @@ ndvi_scores <- predict(
   overwrite = TRUE)
 plot(ndvi_scores)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/pca/unnamed-chunk-8-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/pca/unnamed-chunk-8-1.png" %})
 {:.captioned}
 
 A complication in here is that the `pca` object does not know how the original
@@ -180,7 +180,7 @@ ndvi_dev <- overlay(
   overwrite = TRUE)
 names(ndvi_dev) <- names(ndvi)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -193,10 +193,10 @@ same approximation using even fewer principal components.
 ~~~r
 > animate(ndvi_dev, pause = 0.5, n = 1)
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
-![plot of ndvi_dev_animation]({{ site.baseurl }}/images/ndvi_dev_animation.gif)
+![plot of ndvi_dev_animation]({% include asset.html path="images/ndvi_dev_animation.gif" %})
 {:.captioned}
 
 ===
@@ -213,6 +213,6 @@ plot(
   ndvi_scores[[3]] < -2)
 plot(st_geometry(scar), add = TRUE)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/pca/unnamed-chunk-12-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/pca/unnamed-chunk-12-1.png" %})
 {:.captioned}

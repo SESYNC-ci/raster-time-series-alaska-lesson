@@ -22,7 +22,7 @@
 Load packages, define global variables, and take care of remaining logistics at
 the very top.
 
-```{r, title = "{{ site.handouts[0] }}", message = FALSE}
+```{r, handout = 0, message = FALSE}
 library(sf)
 library(raster)
 library(ggplot2)

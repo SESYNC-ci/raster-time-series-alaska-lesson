@@ -15,7 +15,7 @@ ndvi_16day <- Sys.glob(
 ndvi <- stack(ndvi_16day)
 crs(ndvi) <- '+init=epsg:3338'
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -30,7 +30,7 @@ dates <- as.Date(
   '%Y_%m_%d')
 names(ndvi) <- format(dates, '%b %d %Y')
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 
@@ -38,8 +38,8 @@ names(ndvi) <- format(dates, '%b %d %Y')
 ~~~r
 > plot(subset(ndvi, 1:2))
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/brick/unnamed-chunk-3-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/brick/unnamed-chunk-3-1.png" %})
 {:.captioned}
 
 ===
@@ -68,7 +68,7 @@ ndvi <- crop(ndvi, burn_bbox,
   filename = file.path(out, 'crop_alaska_ndvi.grd'),
   overwrite = TRUE)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -81,19 +81,19 @@ Notice that `crop` creates a `RasterBrick`. In fact, we have been working with a
 ~~~r
 > ndvi
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
-class       : RasterBrick 
-dimensions  : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
-resolution  : 1000.045, 999.9566  (x, y)
-extent      : 68336.16, 219342.9, 1772970, 1846967  (xmin, xmax, ymin, ymax)
-coord. ref. : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
-data source : /home/ian/training/handouts/build/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
-names       : Jan.01.2005, Jan.17.2005, Feb.02.2005, Feb.18.2005, Mar.06.2005, Mar.22.2005, Apr.07.2005, Apr.23.2005, May.09.2005, May.25.2005, Jun.10.2005, Jun.26.2005, Jul.12.2005, Jul.28.2005, Aug.13.2005, ... 
-min values  :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,    -0.09540,    -0.03910,    -0.11290,    -0.09390,    -0.15520,    -0.18400,    -0.16780,    -0.18000,    -0.17200,    -0.18600, ... 
-max values  :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 
+class      : RasterBrick 
+dimensions : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
+resolution : 1000.045, 999.9566  (x, y)
+extent     : 68336.16, 219342.9, 1772970, 1846967  (xmin, xmax, ymin, ymax)
+crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
+source     : /research-home/icarroll/training/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
+names      : Jan.01.2005, Jan.17.2005, Feb.02.2005, Feb.18.2005, Mar.06.2005, Mar.22.2005, Apr.07.2005, Apr.23.2005, May.09.2005, May.25.2005, Jun.10.2005, Jun.26.2005, Jul.12.2005, Jul.28.2005, Aug.13.2005, ... 
+min values :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,    -0.09540,    -0.03910,    -0.11290,    -0.09390,    -0.15520,    -0.18400,    -0.16780,    -0.18000,    -0.17200,    -0.18600, ... 
+max values :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 
 ~~~
 {:.output}
 
@@ -110,10 +110,10 @@ and interpret the characteristics of wildfire visible by remote sensing.
 ~~~r
 > animate(ndvi, pause = 0.5, n = 1)
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
-![plot of ndvi_animation]({{ site.baseurl }}/images/ndvi_animation.gif)
+![plot of ndvi_animation]({% include asset.html path="images/ndvi_animation.gif" %})
 {:.captioned}
 
 ===
@@ -130,8 +130,8 @@ layer from Aug 13, 2005.
 idx <- match('Aug.13.2005', names(ndvi))
 plot(ndvi[[idx]])
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/brick/unnamed-chunk-8-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/brick/unnamed-chunk-8-1.png" %})
 {:.captioned}
 
 ===
@@ -142,7 +142,7 @@ plot(ndvi[[idx]])
 > pixel <- click(ndvi[[idx]], cell = TRUE)
 > pixel
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
 ===
@@ -159,7 +159,7 @@ scar_pixel <- data.frame(
   Type = 'burn scar?',
   NDVI = c(ndvi[pixel]))
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -176,7 +176,7 @@ normal_pixel <- data.frame(
   Type = 'normal',
   NDVI = c(ndvi[pixel]))
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -192,8 +192,8 @@ ggplot(pixel,
            group = cell, col = Type)) +
   geom_line()
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-![ ]({{ site.baseurl }}/images/brick/unnamed-chunk-12-1.png)
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/brick/unnamed-chunk-12-1.png" %})
 {:.captioned}
 
 ===
@@ -209,7 +209,7 @@ another spatial data source.
 ~~~r
 > ?zonal
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
 Currently we have raster data (`ndvi`) and vector data (`scar`). In order to
@@ -236,7 +236,7 @@ scar_zone <- rasterize(scar_geom, ndvi,
   filename = 'results/scar.grd',
   overwrite = TRUE)
 ~~~
-{:.text-document .no-eval title="Do Not Eval"}
+{:title="Do Not Eval" .no-eval .text-document}
 
 
 ===
@@ -250,7 +250,7 @@ scar_zone <- raster('data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclasse
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -263,7 +263,7 @@ The `zonal` function calculates `fun` over each zone
 scar_ndvi <-
   zonal(ndvi, scar_zone, "mean")
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -280,7 +280,7 @@ scar_zone <- data.frame(
   Zone = rep(zone, length(dates)),
   NDVI = c(scar_ndvi))
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -296,8 +296,8 @@ greenness compared to the background NDVI.
 +            col = Zone)) +
 +   geom_line()
 ~~~
-{:.input title="Console"}
-![ ]({{ site.baseurl }}/images/brick/unnamed-chunk-18-1.png)
+{:title="Console" .input}
+![ ]({% include asset.html path="images/brick/unnamed-chunk-18-1.png" %})
 {:.captioned}
 
 ===
