@@ -1,47 +1,17 @@
-# Site
+# Build Configuration
 
-title: Raster Time-Series
-subtitle: Wildfire in Alaska
-handouts:
-  - worksheet.R
-  - data/NDVI_alaska_2005
-  - data/data_var_Alaska
-  - data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif
-  - data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed
-  - data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif
-  - data/r_ndvi_2001_2009_filling6__STA_year9_Amplitude0.tif
-  - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.shp
-  - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.shx
-  - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.dbf
-  - data/README.md
-tag: v0.0
-lesson: 3
-instructor: Ian Carroll
-authors:
-  - Benoit Parmentier
-  - Ian Carroll
-
-# Slides
-
-slide_sorter:
-  - intro
-  - stack
-  - brick
-  - pca
-  - conclude
-
-#####################################
-# Only modify content above or risk #
-# merge conflicts with upstream.    #
-#####################################
-
-# Style
-
-styleurl: https://cdn.rawgit.com/sesync-ci/lesson-style/v2.0/docs
-reveal: https://cdn.rawgit.com/hakimel/reveal.js/3.5.0
-
-# Jekyll
-
-markdown: kramdown
+markdown: kramdown 
 collections:
-  - slides
+  slides:
+    output: false
+  views:
+    output: true
+    permalink: /:name/
+  archive:
+    output: true
+    permalink: /:year/:month/:day/:title:output_ext
+
+# Asset Location
+
+imageurl: /assets/images/
+styleurl: /assets/css/
