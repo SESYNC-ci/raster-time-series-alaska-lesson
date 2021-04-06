@@ -14,7 +14,7 @@ handouts:
   - data/README.md
 tag: v0.0
 lesson: 3
-instructor: Ian Carroll
+instructor: 
 lifecycle: beta # status for lifecycle badge
 badgecolor: blue # color for lifecycle badge
 warning: true # whether to include note about lifecycle status
