@@ -13,8 +13,8 @@ handouts:
   - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.dbf
   - data/README.md
 tag: v0.0
-lesson: 3
-instructor: 
+lesson: 2
+instructor: Quentin Read
 lifecycle: beta # status for lifecycle badge
 badgecolor: blue # color for lifecycle badge
 warning: true # whether to include note about lifecycle status
