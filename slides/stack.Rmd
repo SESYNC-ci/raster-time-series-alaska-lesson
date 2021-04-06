@@ -101,7 +101,7 @@ memory. This is the key to working with deep stacks of large rasters.
 
 Many and massive wildfires burned in Alaska and the Yukon between 2001 and 2009.
 Three large fires that burned during this period (their locations are in a
-shapefile) occured within boreal forest areas of central Alaska.
+shapefile) occurred within boreal forest areas of central Alaska.
 
 ```{r, handout = 0}
 scar <- read_sf(
@@ -139,7 +139,7 @@ inMemory(ndvi)
 
 ## Pixel Change
 
-Use element-wise subtration to give a difference raster, where negative values
+Use element-wise subtraction to give a difference raster, where negative values
 indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 
 ```{r, handout = 0}
@@ -161,7 +161,7 @@ hist(diff_ndvi)
 ===
 
 One way to "classify" pixels as potentially affected by wildfire is to threshold
-the differrence. Pixels below "-0.1" mostly belong to the smaller mode, and may
+the difference. Pixels below "-0.1" mostly belong to the smaller mode, and may
 represent impacts of wildfire.
 
 ```{r}
@@ -208,7 +208,7 @@ hist(diff_ndvi_stdz, breaks = 20)
 
 ===
 
-Standardizing the pixel values does not change the overal result.
+Standardizing the pixel values does not change the overall result.
 
 ```{r}
 plot(diff_ndvi_stdz < -1)

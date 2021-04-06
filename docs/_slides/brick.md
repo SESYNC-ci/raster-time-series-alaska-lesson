@@ -268,7 +268,7 @@ scar_ndvi <-
 
 ===
 
-Rearrange the data for vizualization as a time series.
+Rearrange the data for visualization as a time series.
 
 
 
@@ -304,5 +304,5 @@ greenness compared to the background NDVI.
 
 ## Zonal Statistics
 
-- provide a very clean reduction of raster time-series for easy vizualization
+- provide a very clean reduction of raster time-series for easy visualization
 - require pre-defined zones!
