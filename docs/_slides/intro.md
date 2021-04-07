@@ -21,6 +21,7 @@ The [Raster](https://cran.r-project.org/web/packages/raster/index.html) library 
 - Use MODIS derived Normalized Difference Vegetation Index (NDVI) rasters
 - Execute efficient raster calculations
 - Perform Principal Component Analysis (PCA) on raster "bricks"
+
 ===
 
 ## Logistics
