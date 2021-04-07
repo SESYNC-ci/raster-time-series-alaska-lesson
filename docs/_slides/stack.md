@@ -48,6 +48,9 @@ ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ~~~
 {:.output}
 
+We read all the `.tif` files in the data folder using the `*` wildcard character.
+In this case, we read the two `.tif` files that are in the `data` folder.
+{:.notes}
 
 ===
 
@@ -69,6 +72,9 @@ names(ndvi) <- c(
 {:title="Console" .input}
 ![ ]({% include asset.html path="images/stack/unnamed-chunk-4-1.png" %})
 {:.captioned}
+Using the `stack()` function we create a raster stack and assign it to the `ndvi` object.
+We named the files in the stack accordingly by using the `names` function. These will also be the titles for the plots.
+{:.notes}
 
 ===
 
@@ -96,6 +102,8 @@ values     : -0.3, 0.8713216  (min, max)
 ~~~
 {:.output}
 
+We display the metadata for the first raster layer in the `ndvi` object.
+{:.notes}
 
 ===
 
@@ -127,6 +135,8 @@ crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154
 ~~~
 {:.output}
 
+We display the metadata for the `ndvi` raster stack object.
+{:.notes}
 
 ===
 
@@ -194,6 +204,12 @@ plot(st_geometry(scar), add = TRUE)
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/stack/unnamed-chunk-10-1.png" %})
 {:.captioned}
+We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` folder file. This
+is a polygon shapefile containing the geometry of a wildfire.
+We assign the `EPSG:3338` crs for Alaska Albers when reading the shapefile.
+We plot the first raster layer in the `ndvi` stack and then plot and overlay of the
+wildfire using the polygon shapefile. 
+{:.notes}
 
 ===
 
@@ -208,6 +224,12 @@ burn_bbox <-
 ndvi <- crop(ndvi, burn_bbox)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+Using `st_bbox` we create a bounding box for the wildfire and use it to generate
+a matrix and the extent of the wildfire. We assign the extent of the wildfire to 
+`burn_bbox`. `burn_bbox` is now an object containing x and y minimum and maximum
+coordinated. We use these minimums and maximums to crop the raster stack object `ndvi`.
+{:.notes}
 
 
 
@@ -252,6 +274,9 @@ diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+`diff_ndvi` is a raster object containing the difference between layer in the `ndvi` stack.
+{:.notes}
 
 
 

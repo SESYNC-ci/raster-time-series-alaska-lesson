@@ -1,20 +1,26 @@
 ---
 ---
 
+## Introduction
+
+The [Raster](https://cran.r-project.org/web/packages/raster/index.html) library is a powerful open-source geographical data analysis tool used to manipulate, analyze, and model spatial data. This lesson provides an overview of using `raster`, the namesake package in R, to create a raster time series of wild fires in Alaska.
+
+===
+
 ## Lesson Objectives
 
-- Observe characteristics of wildfire in remote sensing data
+- Work with time series raster data
+- Observe characteristics of wildfires in remote sensing data
 - Find "unusual" pixels in time-series of raster data
 
 ===
 
 ## Specific Achievements
 
-- Distinguish "stacks" from "bricks"
-- Use MODIS derived NDVI
+- Distinguish raster "stacks" from  raster "bricks"
+- Use MODIS derived Normalized Difference Vegetation Index (NDVI) rasters
 - Execute efficient raster calculations
-- Perform PCA on "bricks"
-
+- Perform Principal Component Analysis (PCA) on raster "bricks"
 ===
 
 ## Logistics
@@ -30,3 +36,8 @@ library(ggplot2)
 out <- 'outputs_raster_ts'
 dir.create(out, showWarnings = FALSE)
 ```
+
+We load the required packages, `sf`, `raster`, and `ggplot2`. 
+A string called `outputs_raster_ts` is created.
+`dir.create()`  creates a folder directory called `outputs_raster_ts`.
+{:.notes}
