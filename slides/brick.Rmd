@@ -13,6 +13,10 @@ ndvi_16day <- Sys.glob(
 ndvi <- stack(ndvi_16day)
 crs(ndvi) <- '+init=epsg:3338'
 ```
+`ndvi_16day` contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/`
+folder.
+We create a stack if rasters and assign a crs.
+{:.notes}
 
 ===
 
@@ -24,6 +28,13 @@ dates <- as.Date(
   '%Y_%m_%d')
 names(ndvi) <- format(dates, '%b %d %Y')
 ```
+All the raster images are stored in the `ndvi` stack object and their names start
+with `alaska_NDVI_`.
+`names(ndvi)` gives us all the names of the rasters in the stack.
+First we use `sub()` to replace `alaska_NDVI_` with an empty string, this gives us just the dates.
+We then format the dates, and assign them back as the names for the rasters in the stack.
+In this case, we are formatting the dates by using `'%b %d %Y'`.
+{:.notes}
 
 ```{r}
 plot(subset(ndvi, 1:2))
@@ -99,6 +110,9 @@ layer from Aug 13, 2005.
 idx <- match('Aug.13.2005', names(ndvi))
 plot(ndvi[[idx]])
 ```
+We get the `Aug.13.2005` raster using match and then plot it.
+{:.notes}
+
 
 ===
 
@@ -106,6 +120,9 @@ plot(ndvi[[idx]])
 pixel <- click(ndvi[[idx]], cell = TRUE)
 pixel
 ```
+`click()` gives the ability to click on the plot map and get pixel values for a cell.
+After clicking on the map, you will see the cell number and value for that cell printed on the console. Press the `esc` key in your keyboard to exit the pixel clicker. 
+{:.notes}
 
 ===
 

@@ -33,6 +33,9 @@ ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ```{r}
 ndvi_yrly
 ```
+We read all the `.tif` files in the data folder using the `*` wildcard character.
+In this case, we read the two `.tif` files that are in the `data` folder.
+{:.notes}
 
 ===
 
@@ -45,6 +48,9 @@ names(ndvi) <- c(
 ```{r}
 plot(ndvi)
 ```
+Using the `stack()` function we create a raster stack and assign it to the `ndvi` object.
+We named the files in the stack accordingly by using the `names` function. These will also be the titles for the plots.
+{:.notes}
 
 ===
 
@@ -55,6 +61,8 @@ projections. They only have to share a common extent and resolution.
 ```{r}
 raster(ndvi, 1)
 ```
+We display the metadata for the first raster layer in the `ndvi` object.
+{:.notes}
 
 ===
 
@@ -68,6 +76,8 @@ crs(ndvi) <- '+init=epsg:3338'
 ```{r}
 raster(ndvi, 0)
 ```
+We display the metadata for the `ndvi` raster stack object.
+{:.notes}
 
 ===
 
@@ -110,6 +120,12 @@ scar <- read_sf(
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ```
+We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` folder file. This
+is a polygon shapefile containing the geometry of a wildfire.
+We assign the `EPSG:3338` crs for Alaska Albers when reading the shapefile.
+We plot the first raster layer in the `ndvi` stack and then plot and overlay of the
+wildfire using the polygon shapefile. 
+{:.notes}
 
 ===
 
@@ -121,6 +137,12 @@ burn_bbox <-
   extent(matrix(st_bbox(scar), 2))
 ndvi <- crop(ndvi, burn_bbox)
 ```
+Using `st_bbox` we create a bounding box for the wildfire and use it to generate
+a matrix and the extent of the wildfire. We assign the extent of the wildfire to 
+`burn_bbox`. `burn_bbox` is now an object containing x and y minimum and maximum
+coordinated. We use these minimums and maximums to crop the raster stack object `ndvi`.
+{:.notes}
+
 ```{r}
 plot(ndvi[[1]], ext = burn_bbox)
 plot(st_geometry(scar), add = TRUE)
@@ -146,6 +168,9 @@ indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
 ```
+`diff_ndvi` is a raster object containing the difference between layer in the `ndvi` stack.
+{:.notes}
+
 ```{r}
 plot(diff_ndvi)
 ```

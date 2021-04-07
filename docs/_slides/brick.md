@@ -17,6 +17,10 @@ crs(ndvi) <- '+init=epsg:3338'
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
+`ndvi_16day` contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/`
+folder.
+We create a stack if rasters and assign a crs.
+{:.notes}
 
 ===
 
@@ -32,6 +36,13 @@ names(ndvi) <- format(dates, '%b %d %Y')
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
+All the raster images are stored in the `ndvi` stack object and their names start
+with `alaska_NDVI_`.
+`names(ndvi)` gives us all the names of the rasters in the stack.
+First we use `sub()` to replace `alaska_NDVI_` with an empty string, this gives us just the dates.
+We then format the dates, and assign them back as the names for the rasters in the stack.
+In this case, we are formatting the dates by using `'%b %d %Y'`.
+{:.notes}
 
 
 
@@ -90,7 +101,7 @@ dimensions : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
 resolution : 1000.045, 999.9566  (x, y)
 extent     : 68336.16, 219342.9, 1772970, 1846967  (xmin, xmax, ymin, ymax)
 crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
-source     : /research-home/icarroll/training/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
+source     : /research-home/agarcia/lesson_repos/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
 names      : Jan.01.2005, Jan.17.2005, Feb.02.2005, Feb.18.2005, Mar.06.2005, Mar.22.2005, Apr.07.2005, Apr.23.2005, May.09.2005, May.25.2005, Jun.10.2005, Jun.26.2005, Jul.12.2005, Jul.28.2005, Aug.13.2005, ... 
 min values :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,    -0.09540,    -0.03910,    -0.11290,    -0.09390,    -0.15520,    -0.18400,    -0.16780,    -0.18000,    -0.17200,    -0.18600, ... 
 max values :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 
@@ -133,6 +144,9 @@ plot(ndvi[[idx]])
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/brick/unnamed-chunk-8-1.png" %})
 {:.captioned}
+We get the `Aug.13.2005` raster using match and then plot it.
+{:.notes}
+
 
 ===
 
@@ -144,6 +158,9 @@ plot(ndvi[[idx]])
 ~~~
 {:title="Console" .no-eval .input}
 
+`click()` gives the ability to click on the plot map and get pixel values for a cell.
+After clicking on the map, you will see the cell number and value for that cell printed on the console. Press the `esc` key in your keyboard to exit the pixel clicker. 
+{:.notes}
 
 ===
 
