@@ -45,12 +45,13 @@ names(ndvi) <- c(
   'Avg NDVI 2002',
   'Avg NDVI 2009')
 ```
-```{r}
-plot(ndvi)
-```
 Using the `stack()` function we create a raster stack and assign it to the `ndvi` object.
 We named the files in the stack accordingly by using the `names` function. These will also be the titles for the plots.
 {:.notes}
+
+```{r}
+plot(ndvi)
+```
 
 ===
 
@@ -59,10 +60,9 @@ CRS is missing: it is quite possible to stack files with different
 projections. They only have to share a common extent and resolution.
 
 ```{r}
+# display metadata for the 1st raster in the ndvi stack
 raster(ndvi, 1)
 ```
-We display the metadata for the first raster layer in the `ndvi` object.
-{:.notes}
 
 ===
 
@@ -74,10 +74,9 @@ Equal Area projection of Alaska using the NAD38 datum.
 crs(ndvi) <- '+init=epsg:3338'
 ```
 ```{r}
+# display metadata for the the ndvi stack
 raster(ndvi, 0)
 ```
-We display the metadata for the `ndvi` raster stack object.
-{:.notes}
 
 ===
 
@@ -121,7 +120,7 @@ plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ```
 We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` folder file. This
-is a polygon shapefile containing the geometry of a wildfire.
+is a polygon shapefile containing the geometry of a wildfire in central Alaska.
 We assign the `EPSG:3338` crs for Alaska Albers when reading the shapefile.
 We plot the first raster layer in the `ndvi` stack and then plot and overlay of the
 wildfire using the polygon shapefile. 
@@ -168,7 +167,7 @@ indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
 ```
-`diff_ndvi` is a raster object containing the difference between layer in the `ndvi` stack.
+`diff_ndvi` is a raster object containing the difference between the layers in the `ndvi` stack.
 {:.notes}
 
 ```{r}
