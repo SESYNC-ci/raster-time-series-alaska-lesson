@@ -4,7 +4,7 @@
 ## Raster Time Series
 
 Take a closer look at NDVI using products covering 16 day periods in 2005. These
-images are stored as separate files on disk, all having the same extent and
+images are stored as separate files on the disk, all having the same extent and
 resolution.
 
 
@@ -17,8 +17,7 @@ crs(ndvi) <- '+init=epsg:3338'
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
-`ndvi_16day` contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/`
-folder.
+The `ndvi_16day` objects contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/` folder.
 We create a stack if rasters and assign a crs.
 {:.notes}
 
@@ -39,9 +38,9 @@ names(ndvi) <- format(dates, '%b %d %Y')
 All the raster images are stored in the `ndvi` stack object and their names start
 with `alaska_NDVI_`.
 `names(ndvi)` gives us all the names of the rasters in the stack.
-First we use `sub()` to replace `alaska_NDVI_` with an empty string, this gives us just the dates.
+First we use `sub()` to replace `alaska_NDVI_` with an empty string, which gives us just the dates.
 We then format the dates, and assign them back as the names for the rasters in the stack.
-In this case, we are formatting the dates by using `'%b %d %Y'`.
+In this case, we are formatting the dates like so: `'%b %d %Y'`, where `%b` is the month, `%d` the day, and `%Y` the year.
 {:.notes}
 
 
@@ -111,7 +110,7 @@ max values :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   
 
 ===
 
-## So Many Data
+## So Much Data
 
 The immediate challenge is trying to represent the data in ways we can explore
 and interpret the characteristics of wildfire visible by remote sensing.
@@ -144,7 +143,7 @@ plot(ndvi[[idx]])
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/brick/unnamed-chunk-8-1.png" %})
 {:.captioned}
-We get the `Aug.13.2005` raster using match and then plot it.
+We get the `Aug.13.2005` raster using `match` and then plot it.
 {:.notes}
 
 
@@ -158,8 +157,8 @@ We get the `Aug.13.2005` raster using match and then plot it.
 ~~~
 {:title="Console" .no-eval .input}
 
-`click()` gives the ability to click on the plot map and get pixel values for a cell.
-After clicking on the map, you will see the cell number and value for that cell printed on the console. Press the `esc` key in your keyboard to exit the pixel clicker. 
+`click()` gives us the ability to click on the plot map and get pixel values for a cell.
+After clicking on the map, you will see the cell number and value for that cell is printed on the console. Press the `esc` key in your keyboard to exit the pixel clicker. 
 {:.notes}
 
 ===
@@ -178,6 +177,8 @@ scar_pixel <- data.frame(
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
+We create a `scar_pixel` dataframe for the burn scar. `rep()` replicates the dates for `each` times (lenght of pixel). `pixel` is replicated fornthe dates.
+{:.notes}
 
 ===
 
@@ -212,6 +213,8 @@ ggplot(pixel,
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/brick/unnamed-chunk-12-1.png" %})
 {:.captioned}
+We can see a significant difference in August between a possible burn scar and what the area normally looks like.
+{:.notes}
 
 ===
 
