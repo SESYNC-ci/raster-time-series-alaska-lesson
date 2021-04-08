@@ -150,8 +150,6 @@ normal_pixel <- data.frame(
   Type = 'normal',
   NDVI = c(ndvi[pixel]))
 ```
-We can see a significant difference in August between a possible burn scar and what the area normally looks like.
-{:.notes}
 
 ===
 
@@ -164,7 +162,8 @@ ggplot(pixel,
            group = cell, col = Type)) +
   geom_line()
 ```
-
+We can see a significant difference in August between a possible burn scar and what the area normally looks like.
+{:.notes}
 
 ===
 
