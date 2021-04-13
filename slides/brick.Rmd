@@ -3,7 +3,7 @@
 
 ## Raster Time Series
 
-Take a closer look at NDVI using products covering 16 day periods in 2005. These
+Take a closer look at NDVI using products covering 16-day periods in 2005. These
 images are stored as separate files on the disk, all having the same extent and
 resolution.
 
@@ -13,8 +13,8 @@ ndvi_16day <- Sys.glob(
 ndvi <- stack(ndvi_16day)
 crs(ndvi) <- '+init=epsg:3338'
 ```
-The `ndvi_16day` objects contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/` folder.
-We create a stack if rasters and assign a crs.
+The `ndvi_16day` object contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/` folder.
+We create a stack of rasters and assign a CRS.
 {:.notes}
 
 ===
@@ -48,7 +48,7 @@ time series of remote sensing data from sequential overflights, has advantages
 for speed but limitations on flexibility.
 
 A `RasterStack` is more flexible because it can mix values stored on disk with
-those in memory. Adding a layer of in-memory values to a RasterBrick causes the
+those in memory. Adding a layer of in-memory values to a `RasterBrick` causes the
 entire brick to be loaded into memory, which may not be possible given the
 available memory.
 {:.notes}
@@ -109,7 +109,7 @@ layer from Aug 13, 2005.
 idx <- match('Aug.13.2005', names(ndvi))
 plot(ndvi[[idx]])
 ```
-We get the `Aug.13.2005` raster using `match` and then plot it.
+`match()` returns the index of the layer in `ndvi` named `'Aug.13.2005'`.
 {:.notes}
 
 
@@ -120,12 +120,13 @@ pixel <- click(ndvi[[idx]], cell = TRUE)
 pixel
 ```
 `click()` gives us the ability to click on the plot map and get pixel values for a cell.
-After clicking on the map, you will see the cell number and value for that cell is printed on the console. Press the `esc` key in your keyboard to exit the pixel clicker. 
+After clicking on the map, you will see the cell number and value for that cell is printed on the console. 
+Press the `esc` key to exit the pixel clicker. 
 {:.notes}
 
 ===
 
-"Hard code" these pixel values into your worksheet
+"Hard code" these pixel values into your worksheet.
 
 ```{r, handout = 0}
 pixel <- c(2813, 3720, 2823, 4195, 9910)
@@ -135,7 +136,8 @@ scar_pixel <- data.frame(
   Type = 'burn scar?',
   NDVI = c(ndvi[pixel]))
 ```
-We create a `scar_pixel` dataframe for the burn scar. `rep()` replicates the dates for `each` times (lenght of pixel). `pixel` is replicated fornthe dates.
+We create a `scar_pixel` dataframe for the burn scar. `rep()` repeats the dates  `each` times (the number of pixels). 
+`pixel` is repeated for each of the dates.
 {:.notes}
 
 ===
@@ -162,6 +164,8 @@ ggplot(pixel,
            group = cell, col = Type)) +
   geom_line()
 ```
+
+Combine the two dataframes we created to a single one and plot with `ggplot()`.
 We can see a significant difference in August between a possible burn scar and what the area normally looks like.
 {:.notes}
 
@@ -169,7 +173,7 @@ We can see a significant difference in August between a possible burn scar and w
 
 ## Zonal Averages
 
-Cannot very well analyze the time series for every pixel, so we have to reduce
+We cannot very well analyze the time series for every pixel, so we have to reduce
 the dimensionality of the data. One way is to summarize it by "zones" defined by
 another spatial data source.
 
@@ -181,7 +185,7 @@ Currently we have raster data (`ndvi`) and vector data (`scar`). In order to
 aggregate by polygon, we have to join these two datasets. There are two
 approaches. 1) Treat the raster data as POINT geometries in a table and perform
 a spatial join to the table with POLYGON geometries. 2) Turn the polygons into a
-raster and summarize the raster masked for each polygon. Let's persue option 2,
+raster and summarize the raster masked for each polygon. Let's pursue option 2,
 but take a shortcut due to the presence of invalid geometries in the shapefile.
 {:.notes}
 
@@ -210,9 +214,13 @@ crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 ```
 
+Create a `RasterLayer` object from the pre-rasterized scar zones image, then 
+crop it to the same extent as `ndvi`.
+{:.notes}
+
 ===
 
-The `zonal` function calculates `fun` over each zone
+The `zonal` function calculates `fun` (here, `mean`) over each zone.
 
 ```{r, handout = 0}
 scar_ndvi <-
@@ -232,10 +240,16 @@ scar_zone <- data.frame(
   NDVI = c(scar_ndvi))
 ```
 
+Here we convert the zone category labels to a `factor` variable, then
+manually reshape the data from wide form to long form, with one column
+for the date, one for the zone category, and one for the mean NDVI value
+for that category.
+{:.notes}
+
 ===
 
 What appears to be the most pronounced signal in this view is an early loss of
-greenness compared to the background NDVI.
+greenness compared to the background NDVI (Zone 0).
 
 ```{r}
 ggplot(scar_zone,

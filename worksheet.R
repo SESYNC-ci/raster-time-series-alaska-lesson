@@ -26,8 +26,7 @@ scar <- ...(
 plot(...)
 plot(..., add = TRUE)
 
-burn_bbox <-
-  ...
+burn_bbox <- ...
 ndvi <- ...(ndvi, burn_bbox)
 
 ## Pixel Change 
