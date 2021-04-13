@@ -157,7 +157,9 @@ $$\mathbf{X_t}$$, is a linear combination of each score "map", $$\mathbf{T}_i$$,
 time-varying loadings, $$W_{i,t}$$.
 {:.notes}
 
-$$\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 +~...$$
+$$
+\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \dots
+$$
 
 ===
 
