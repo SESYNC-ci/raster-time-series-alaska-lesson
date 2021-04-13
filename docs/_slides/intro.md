@@ -3,7 +3,9 @@
 
 ## Introduction
 
-The [Raster](https://cran.r-project.org/web/packages/raster/index.html) library is a powerful open-source geographical data analysis tool used to manipulate, analyze, and model spatial data. This lesson provides an overview of using `raster`, the namesake package in R, to create a raster time series of wild fires in Alaska.
+The [raster](){:.rlib} library is a powerful open-source geographical data analysis tool used to manipulate, analyze, and model spatial raster data.
+A raster is a grid of pixel values---in the world of geospatial data, the grid is associated with a location on Earth's surface.
+This lesson provides an overview of using [raster](){:.rlib}, the namesake package in R, to create a raster time series of wildfires in Alaska.
 
 ===
 
@@ -43,6 +45,5 @@ dir.create(out, showWarnings = FALSE)
 
 
 We load the required packages, `sf`, `raster`, and `ggplot2`. 
-A string called `outputs_raster_ts` is created.
-`dir.create()`  creates a folder directory called `outputs_raster_ts`.
+`dir.create()`  creates a folder for output rasters called `outputs_raster_ts`.
 {:.notes}

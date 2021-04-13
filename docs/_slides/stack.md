@@ -48,7 +48,7 @@ ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ~~~
 {:.output}
 
-We read all the `.tif` files in the data folder using the `*` wildcard character.
+We read all the `.tif` files in the `data` folder using the `*` wildcard character.
 In this case, we read the two `.tif` files that are in the `data` folder.
 {:.notes}
 
@@ -65,7 +65,7 @@ names(ndvi) <- c(
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 Using the `stack()` function we create a raster stack and assign it to the `ndvi` object.
-We named the files in the stack accordingly by using the `names` function. These will also be the titles for the plots.
+We name each layer in the stack by using the `names` function. These will also be the titles for the plots.
 {:.notes}
 
 
@@ -121,7 +121,7 @@ crs(ndvi) <- '+init=epsg:3338'
 
 
 ~~~r
-> # display metadata for the the ndvi stack
+> # display metadata for the ndvi stack
 > raster(ndvi, 0)
 ~~~
 {:title="Console" .input}
@@ -203,10 +203,10 @@ plot(st_geometry(scar), add = TRUE)
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/stack/unnamed-chunk-10-1.png" %})
 {:.captioned}
-We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` folder file. This
+We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` directory. This
 is a polygon shapefile containing the geometry of a wildfire in central Alaska.
-We assign the `EPSG:3338` crs for Alaska Albers when reading the shapefile.
-We plot the first raster layer in the `ndvi` stack and then plot and overlay of the
+We assign the `EPSG:3338` CRS for Alaska Albers when reading the shapefile.
+We plot the first raster layer in the `ndvi` stack and then plot an overlay of the
 wildfire using the polygon shapefile. 
 {:.notes}
 
@@ -218,16 +218,13 @@ extent of the shapefile.
 
 
 ~~~r
-burn_bbox <-
-  extent(matrix(st_bbox(scar), 2))
+burn_bbox <- st_bbox(scar)
 ndvi <- crop(ndvi, burn_bbox)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
-Using `st_bbox` we create a bounding box for the wildfire and use it to generate
-a matrix and the extent of the wildfire. We assign the extent of the wildfire to 
-`burn_bbox`. `burn_bbox` is now an object containing x and y minimum and maximum
-coordinated. We use these minimums and maximums to crop the raster stack object `ndvi`.
+Using `st_bbox()` we find the bounding box of the wildfire scar polygons. 
+We assign it to `burn_bbox` and crop the raster stack object `ndvi` to that extent.
 {:.notes}
 
 
@@ -274,7 +271,7 @@ names(diff_ndvi) <- 'Difference'
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
-`diff_ndvi` is a raster object containing the difference between the layers in the `ndvi` stack.
+`diff_ndvi` is a raster object containing the difference between the NDVI values for 2002 and 2009 for each pixel.
 {:.notes}
 
 
@@ -302,7 +299,7 @@ The histogram shows clearly that change in NDVI within this corner of Alaska clu
 ===
 
 One way to "classify" pixels as potentially affected by wildfire is to threshold
-the difference. Pixels below "-0.1" mostly belong to the smaller mode, and may
+the difference. Pixels below `-0.1` mostly belong to the smaller mode, and may
 represent impacts of wildfire.
 
 
@@ -343,8 +340,12 @@ Mathematical operations with rasters and scalars work as expected; scalar
 values are repeated for each cell in the array.
 {:.notes}
 
-The difference threshold of "-0.1" appears roughly equivalent to a threshold of
+The difference threshold of `-0.1` appears roughly equivalent to a threshold of
 1 standard deviation below zero.
+
+In the following code block we standardize the NDVI difference by subtracting the
+mean we calculated earlier, and then dividing by the standard deviation.
+{:.notes}
 
 
 
