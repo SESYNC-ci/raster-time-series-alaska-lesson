@@ -59,15 +59,19 @@ ndvi_stdz <- calc(ndvi,
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
-Here we define a function to standardize (z-transform) a value, then apply it
-to each pixel in each layer of `ndvi`. We use `filename` again to write the output
+Here we find the standard deviation of each NDVI time slice by pulling out
+the diagonal of the covariance matrix with `diag()`, which contains the variance of
+each time slice, then taking the square root of the variance. Next, inside `calc()`,
+we define a function inline to standardize a value by subtracting the mean then
+dividing by the standard deviation, then apply it
+to each pixel in each layer of `ndvi`. We use `filename` to write the output
 directly to disk.
 {:.notes}
 
 ===
 
 Standardizing the data removes the large seasonal swing, but not the correlation
-between "variables", i.e. between pixels in different time slices. Only the
+between "variables," i.e., between pixels in different time slices. Only the
 correlation matters for PCA.
 
 
@@ -125,6 +129,11 @@ Here we manually reshape the output of `princomp` into a data frame for plotting
 
 The first principal component is a more-or-less equally weighted combination of
 all time slices, like an average.
+
+In contrast, components 2 through 4 show trends over time. PC2 has a broad downward trend
+centered around July 2005, while PC3 has a sharp downward trend centered around 
+April 2005.
+{:.notes}
 
 
 
@@ -213,8 +222,9 @@ predicted by the principal components.
 
 ===
 
-Verify that the deviations just calculated are never very large, then try the
-same approximation using even fewer principal components.
+Verify that the deviations just calculated are never very large,
+(that is, the PCA predicts the true values fairly well),
+then try the same approximation using even fewer principal components.
 
 
 
@@ -229,7 +239,8 @@ same approximation using even fewer principal components.
 
 ===
 
-Based on the time variation in the loadings for principal components 2 and 3, we
+Based on the time variation in the loadings for principal components 2 and 3,
+as we saw in the graph of loadings versus time we made earlier, we
 might guess that they correspond to one longer-term and one shorter-term
 departure from the seasonal NDVI variation within this extent.
 
