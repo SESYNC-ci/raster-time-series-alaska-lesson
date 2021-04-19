@@ -53,6 +53,9 @@ entire brick to be loaded into memory, which may not be possible given the
 available memory.
 {:.notes}
 
+`RasterBrick` can be created from a `RasterStack`
+{:.notes}
+
 ===
 
 For training purposes, again crop the NDVI data to the bounding box of the

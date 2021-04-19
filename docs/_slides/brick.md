@@ -66,6 +66,9 @@ entire brick to be loaded into memory, which may not be possible given the
 available memory.
 {:.notes}
 
+`RasterBrick` can be created from a `RasterStack`
+{:.notes}
+
 ===
 
 For training purposes, again crop the NDVI data to the bounding box of the
@@ -100,7 +103,7 @@ dimensions : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
 resolution : 1000.045, 999.9566  (x, y)
 extent     : 68336.16, 219342.9, 1772970, 1846967  (xmin, xmax, ymin, ymax)
 crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
-source     : /research-home/qread/lesson_repos/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
+source     : /research-home/agarcia/lesson_repos/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
 names      : Jan.01.2005, Jan.17.2005, Feb.02.2005, Feb.18.2005, Mar.06.2005, Mar.22.2005, Apr.07.2005, Apr.23.2005, May.09.2005, May.25.2005, Jun.10.2005, Jun.26.2005, Jul.12.2005, Jul.28.2005, Aug.13.2005, ... 
 min values :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,    -0.09540,    -0.03910,    -0.11290,    -0.09390,    -0.15520,    -0.18400,    -0.16780,    -0.18000,    -0.17200,    -0.18600, ... 
 max values :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 

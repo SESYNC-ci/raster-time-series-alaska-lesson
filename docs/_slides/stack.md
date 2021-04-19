@@ -22,10 +22,16 @@ one of two container types:
 
 ===
 
+The main difference is that a `RasterStack` is loose collection of `RasterLayer` objects that can refer to different files (but must all have the same extent and resolution), whereas a `RasterBrick` can only point to a single file.
+
+===
+
 ## Raster Stacks
 
 The layers of a "stack" can refer to data from separate files, or even a mix of
 data on disk and data in memory.
+
+Read raster data and create a stack. 
 
 
 
