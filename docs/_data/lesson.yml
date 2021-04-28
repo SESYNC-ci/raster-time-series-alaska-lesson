@@ -12,7 +12,7 @@ handouts:
   - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.shx
   - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.dbf
   - data/README.md
-tag: v0.0
+tag: v0.1
 lesson: 2
 instructor: Quentin Read
 lifecycle: beta # status for lifecycle badge
