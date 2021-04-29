@@ -17,11 +17,12 @@ lesson: 2
 instructor: Andres Garcia
 lifecycle: stable # status for lifecycle badge
 badgecolor: green # color for lifecycle badge
-warning: true # whether to include note about lifecycle status
+warning: false # whether to include note about lifecycle status
 authors:
   - Benoit Parmentier
   - Ian Carroll
   - Quentin Read
+  - Andres Garcia
 sorter:
   - intro
   - stack
