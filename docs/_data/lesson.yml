@@ -14,9 +14,9 @@ handouts:
   - data/README.md
 tag: v0.1
 lesson: 2
-instructor: Quentin Read
-lifecycle: beta # status for lifecycle badge
-badgecolor: blue # color for lifecycle badge
+instructor: Andres Garcia
+lifecycle: stable # status for lifecycle badge
+badgecolor: green # color for lifecycle badge
 warning: true # whether to include note about lifecycle status
 authors:
   - Benoit Parmentier
