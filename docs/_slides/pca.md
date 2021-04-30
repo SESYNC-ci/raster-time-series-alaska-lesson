@@ -185,11 +185,12 @@ data, so approximate the NDVI time series by "un-projecting" the scores.
 Mathematically, the calculation for this approximation at each time slice,
 $$\mathbf{X_t}$$, is a linear combination of each score "map", $$\mathbf{T}_i$$, with
 time-varying loadings, $$W_{i,t}$$.
-{:.notes}
 
-$$
+$$ 
 \mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \dots
 $$
+{:.notes}
+
 
 ===
 
