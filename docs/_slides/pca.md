@@ -100,7 +100,7 @@ plot(pca)
 ![ ]({% include asset.html path="images/pca/unnamed-chunk-5-1.png" %})
 {:.captioned}
 
-The bar plot of eigenvalues expressed in percentage plotted above gives us the information retained in each principal component (PC). Notice that the past PCs eigenvalues are small and less significant, this is where dimensionality reduction comes into play. If we chose to keep the first four relevant components that retain most of the information then the final data can be reduced to 4 PCs without loosing much information. 
+The bar plot of eigenvalues expressed in percentage plotted above gives us the information retained in each principal component (PC). Notice that the last PCs eigenvalues are small and less significant, this is where dimensionality reduction comes into play. If we chose to keep the first four relevant components that retain most of the information then the final data can be reduced to 4 PCs without loosing much information. 
 {:.notes}
 
 ===
