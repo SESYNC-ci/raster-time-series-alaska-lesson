@@ -10,9 +10,7 @@ values as a simple matrix with
 - each time slice as a variable
 - each pixel as an observation
 
-PCA is a technique for reducing dimensionality of a dataset based on correlation
-between variables. The method proceeds either by eigenvalue decomposition of a
-covariance matrix or singular-value decomposition of the entire dataset.
+Principal component analysis (PCA),  is an image classification technique. It is a technique for reducing dimensionality of a dataset based on correlation between variables. The method proceeds either by eigenvalue decomposition of a covariance matrix or singular-value decomposition of the entire dataset. **Principal components are the distinctive or peculiar features of an image.**
 {:.notes}
 
 ===

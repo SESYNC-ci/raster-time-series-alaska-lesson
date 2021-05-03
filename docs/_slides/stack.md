@@ -200,9 +200,25 @@ shapefile) occurred within boreal forest areas of central Alaska.
 
 
 ~~~r
-scar <- read_sf(
+scar <- st_read(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+~~~
+Reading layer `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' from data source `/nfs/public-data/training/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' using driver `ESRI Shapefile'
+Simple feature collection with 3 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 68336.13 ymin: 1772970 xmax: 219342.9 ymax: 1846967
+CRS:           EPSG:3338
+~~~
+{:.output}
+
+
+~~~r
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ~~~

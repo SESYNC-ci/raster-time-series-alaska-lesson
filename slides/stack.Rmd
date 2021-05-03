@@ -119,7 +119,7 @@ Three large fires that burned during this period (their locations are in a
 shapefile) occurred within boreal forest areas of central Alaska.
 
 ```{r, handout = 0}
-scar <- read_sf(
+scar <- st_read(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
 plot(ndvi[[1]])
