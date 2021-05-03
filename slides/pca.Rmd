@@ -10,7 +10,7 @@ values as a simple matrix with
 - each time slice as a variable
 - each pixel as an observation
 
-Principal component analysis (PCA),  is an image classification technique. It is a technique for reducing dimensionality of a dataset based on correlation between variables. The method proceeds either by eigenvalue decomposition of a covariance matrix or singular-value decomposition of the entire dataset. **Principal components are the distinctive or peculiar features of an image.**
+Principal component analysis (PCA),  is an image classification technique. It is a technique for reducing dimensionality of a dataset based on correlation between variables. The method proceeds either by eigenvalue decomposition of a covariance matrix or singular-value decomposition of the entire dataset. Principal components are the distinctive or peculiar features of an image.
 {:.notes}
 
 ===
@@ -92,6 +92,9 @@ each time slice, but on each principal component.
 pca <- princomp(covmat = ndvi_cor)
 plot(pca)
 ```
+
+The bar plot of eigenvalues expressed in percentage plotted above gives us the information retained in each principal component (PC). Notice that the past PCs eigenvalues are small and less significant, this is where dimensionality reduction comes into play. If we chose to keep the first four relevant components that retain most of the information then the final data can be reduced to 4 PCs without loosing much information. 
+{:.notes}
 
 ===
 
