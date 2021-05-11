@@ -243,45 +243,32 @@ Currently we have raster data (`ndvi`) and vector data (`scar`). In order to
 aggregate by polygon, we have to join these two datasets. There are two
 approaches. 1) Treat the raster data as POINT geometries in a table and perform
 a spatial join to the table with POLYGON geometries. 2) Turn the polygons into a
-raster and summarize the raster masked for each polygon. Let's pursue option 2,
-but take a shortcut due to the presence of invalid geometries in the shapefile.
+raster and summarize the raster masked for each polygon. Let's pursue option 2.
 {:.notes}
 
 ===
 
-Typically we could convert simple features to raster with the `rasterize`
-function, but not all these geometries are well defined.
+Let's convert out `scar` shapefile to raster with the `rasterize`
+function.  
 
 
 
 ~~~r
-# Does not work, due to invalid geometries.
+# Rasterize polygon shapefile.
 scar_geom <-
   as(st_geometry(scar), 'Spatial')
 scar_zone <- rasterize(scar_geom, ndvi,
   background = 0,
-  filename = 'results/scar.grd',
+  filename = 'outputs_raster_ts/scar.grd',
   overwrite = TRUE)
-~~~
-{:title="Do Not Eval" .no-eval .text-document}
 
-
-===
-
-Fortunately, we have the rasterized version from another source.
-
-
-
-~~~r
-scar_zone <- raster('data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif')
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
-Create a `RasterLayer` object from the pre-rasterized scar zones image, then 
-crop it to the same extent as `ndvi`.
+Using `as()` we coerce the `scar` shapefile as an object of the 'Spatial' class. We then use `rasterize()` to create a `RasterLayer` object for the shapefile. Then we crop the raster to the same extent as `ndvi`.
 {:.notes}
 
 ===
@@ -334,7 +321,7 @@ greenness compared to the background NDVI (Zone 0).
 +   geom_line()
 ~~~
 {:title="Console" .input}
-![ ]({% include asset.html path="images/brick/unnamed-chunk-18-1.png" %})
+![ ]({% include asset.html path="images/brick/unnamed-chunk-17-1.png" %})
 {:.captioned}
 
 ===
