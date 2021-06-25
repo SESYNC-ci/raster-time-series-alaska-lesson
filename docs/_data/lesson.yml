@@ -12,15 +12,17 @@ handouts:
   - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.shx
   - data/wwf_terr_ecos_Alaska_ECOREGIONS_ECOSYS_ALB83.dbf
   - data/README.md
-tag: v0.0
+tag: v0.1
 lesson: 13
 instructor: Quentin Read
-lifecycle: beta # status for lifecycle badge
-badgecolor: blue # color for lifecycle badge
-warning: true # whether to include note about lifecycle status
+lifecycle: stable # status for lifecycle badge
+badgecolor: green # color for lifecycle badge
+warning: false # whether to include note about lifecycle status
 authors:
   - Benoit Parmentier
   - Ian Carroll
+  - Quentin Read
+  - Andres Garcia
 sorter:
   - intro
   - stack

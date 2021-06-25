@@ -22,10 +22,16 @@ one of two container types:
 
 ===
 
+The main difference is that a `RasterStack` is loose collection of `RasterLayer` objects that can refer to different files (but must all have the same extent and resolution), whereas a `RasterBrick` can only point to a single file.
+
+===
+
 ## Raster Stacks
 
 The layers of a "stack" can refer to data from separate files, or even a mix of
 data on disk and data in memory.
+
+Read raster data and create a stack. 
 
 ```{r, handout = 0}
 ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
@@ -33,6 +39,9 @@ ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ```{r}
 ndvi_yrly
 ```
+We read all the `.tif` files in the `data` folder using the `*` wildcard character.
+In this case, we read the two `.tif` files that are in the `data` folder.
+{:.notes}
 
 ===
 
@@ -42,6 +51,10 @@ names(ndvi) <- c(
   'Avg NDVI 2002',
   'Avg NDVI 2009')
 ```
+Using the `stack()` function we create a raster stack and assign it to the `ndvi` object.
+We name each layer in the stack by using the `names` function. These will also be the titles for the plots.
+{:.notes}
+
 ```{r}
 plot(ndvi)
 ```
@@ -53,6 +66,7 @@ CRS is missing: it is quite possible to stack files with different
 projections. They only have to share a common extent and resolution.
 
 ```{r}
+# display metadata for the 1st raster in the ndvi stack
 raster(ndvi, 1)
 ```
 
@@ -66,6 +80,7 @@ Equal Area projection of Alaska using the NAD38 datum.
 crs(ndvi) <- '+init=epsg:3338'
 ```
 ```{r}
+# display metadata for the ndvi stack
 raster(ndvi, 0)
 ```
 
@@ -104,12 +119,18 @@ Three large fires that burned during this period (their locations are in a
 shapefile) occurred within boreal forest areas of central Alaska.
 
 ```{r, handout = 0}
-scar <- read_sf(
+scar <- st_read(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ```
+We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` directory. This
+is a polygon shapefile containing the geometry of a wildfire in central Alaska.
+We assign the `EPSG:3338` CRS for Alaska Albers when reading the shapefile.
+We plot the first raster layer in the `ndvi` stack and then plot an overlay of the
+wildfire using the polygon shapefile. 
+{:.notes}
 
 ===
 
@@ -117,10 +138,13 @@ For faster processing in this lesson, crop the NDVI imagery to the smaller
 extent of the shapefile.
 
 ```{r, handout = 0}
-burn_bbox <-
-  extent(matrix(st_bbox(scar), 2))
+burn_bbox <- st_bbox(scar)
 ndvi <- crop(ndvi, burn_bbox)
 ```
+Using `st_bbox()` we find the bounding box of the wildfire scar polygons. 
+We assign it to `burn_bbox` and crop the raster stack object `ndvi` to that extent.
+{:.notes}
+
 ```{r}
 plot(ndvi[[1]], ext = burn_bbox)
 plot(st_geometry(scar), add = TRUE)
@@ -146,6 +170,9 @@ indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.
 diff_ndvi <- ndvi[[2]] - ndvi[[1]]
 names(diff_ndvi) <- 'Difference'
 ```
+`diff_ndvi` is a raster object containing the difference between the NDVI values for 2002 and 2009 for each pixel.
+{:.notes}
+
 ```{r}
 plot(diff_ndvi)
 ```
@@ -161,7 +188,7 @@ hist(diff_ndvi)
 ===
 
 One way to "classify" pixels as potentially affected by wildfire is to threshold
-the difference. Pixels below "-0.1" mostly belong to the smaller mode, and may
+the difference. Pixels below `-0.1` mostly belong to the smaller mode, and may
 represent impacts of wildfire.
 
 ```{r}
@@ -193,8 +220,12 @@ Mathematical operations with rasters and scalars work as expected; scalar
 values are repeated for each cell in the array.
 {:.notes}
 
-The difference threshold of "-0.1" appears roughly equivalent to a threshold of
+The difference threshold of `-0.1` appears roughly equivalent to a threshold of
 1 standard deviation below zero.
+
+In the following code block we standardize the NDVI difference by subtracting the
+mean we calculated earlier, and then dividing by the standard deviation.
+{:.notes}
 
 ```{r, handout = 0}
 diff_ndvi_stdz <-

@@ -3,8 +3,8 @@
 
 ## Raster Time Series
 
-Take a closer look at NDVI using products covering 16 day periods in 2005. These
-images are stored as separate files on disk, all having the same extent and
+Take a closer look at NDVI using products covering 16-day periods in 2005. These
+images are stored as separate files on the disk, all having the same extent and
 resolution.
 
 ```{r, handout = 0}
@@ -13,6 +13,9 @@ ndvi_16day <- Sys.glob(
 ndvi <- stack(ndvi_16day)
 crs(ndvi) <- '+init=epsg:3338'
 ```
+The `ndvi_16day` object contains the names for all the `.tif` files in the `data/NDVI_alaska_2005/` folder.
+We create a stack of rasters and assign a CRS.
+{:.notes}
 
 ===
 
@@ -24,6 +27,13 @@ dates <- as.Date(
   '%Y_%m_%d')
 names(ndvi) <- format(dates, '%b %d %Y')
 ```
+All the raster images are stored in the `ndvi` stack object and their names start
+with `alaska_NDVI_`.
+`names(ndvi)` gives us all the names of the rasters in the stack.
+First we use `sub()` to replace `alaska_NDVI_` with an empty string, which gives us just the dates.
+We then format the dates, and assign them back as the names for the rasters in the stack.
+In this case, we are formatting the dates like so: `'%b %d %Y'`, where `%b` is the month, `%d` the day, and `%Y` the year.
+{:.notes}
 
 ```{r}
 plot(subset(ndvi, 1:2))
@@ -38,9 +48,12 @@ time series of remote sensing data from sequential overflights, has advantages
 for speed but limitations on flexibility.
 
 A `RasterStack` is more flexible because it can mix values stored on disk with
-those in memory. Adding a layer of in-memory values to a RasterBrick causes the
+those in memory. Adding a layer of in-memory values to a `RasterBrick` causes the
 entire brick to be loaded into memory, which may not be possible given the
 available memory.
+{:.notes}
+
+`RasterBrick` can be created from a `RasterStack`
 {:.notes}
 
 ===
@@ -65,7 +78,7 @@ ndvi
 
 ===
 
-## So Many Data
+## So Much Data
 
 The immediate challenge is trying to represent the data in ways we can explore
 and interpret the characteristics of wildfire visible by remote sensing.
@@ -99,6 +112,9 @@ layer from Aug 13, 2005.
 idx <- match('Aug.13.2005', names(ndvi))
 plot(ndvi[[idx]])
 ```
+`match()` returns the index of the layer in `ndvi` named `'Aug.13.2005'`.
+{:.notes}
+
 
 ===
 
@@ -106,10 +122,14 @@ plot(ndvi[[idx]])
 pixel <- click(ndvi[[idx]], cell = TRUE)
 pixel
 ```
+`click()` gives us the ability to click on the plot map and get pixel values for a cell.
+After clicking on the map, you will see the cell number and value for that cell is printed on the console. 
+Press the `esc` key to exit the pixel clicker. 
+{:.notes}
 
 ===
 
-"Hard code" these pixel values into your worksheet
+"Hard code" these pixel values into your worksheet.
 
 ```{r, handout = 0}
 pixel <- c(2813, 3720, 2823, 4195, 9910)
@@ -119,6 +139,9 @@ scar_pixel <- data.frame(
   Type = 'burn scar?',
   NDVI = c(ndvi[pixel]))
 ```
+We create a `scar_pixel` dataframe for the burn scar. `rep()` repeats the dates  `each` times (the number of pixels). 
+`pixel` is repeated for each of the dates.
+{:.notes}
 
 ===
 
@@ -145,11 +168,15 @@ ggplot(pixel,
   geom_line()
 ```
 
+Combine the two dataframes we created to a single one and plot with `ggplot()`.
+We can see a significant difference in August between a possible burn scar and what the area normally looks like.
+{:.notes}
+
 ===
 
 ## Zonal Averages
 
-Cannot very well analyze the time series for every pixel, so we have to reduce
+We cannot very well analyze the time series for every pixel, so we have to reduce
 the dimensionality of the data. One way is to summarize it by "zones" defined by
 another spatial data source.
 
@@ -161,38 +188,33 @@ Currently we have raster data (`ndvi`) and vector data (`scar`). In order to
 aggregate by polygon, we have to join these two datasets. There are two
 approaches. 1) Treat the raster data as POINT geometries in a table and perform
 a spatial join to the table with POLYGON geometries. 2) Turn the polygons into a
-raster and summarize the raster masked for each polygon. Let's persue option 2,
-but take a shortcut due to the presence of invalid geometries in the shapefile.
+raster and summarize the raster masked for each polygon. Let's pursue option 2.
 {:.notes}
 
 ===
 
-Typically we could convert simple features to raster with the `rasterize`
-function, but not all these geometries are well defined.
+Let's convert out `scar` shapefile to raster with the `rasterize`
+function.  
 
-```{r, title = "Do Not Eval", eval = FALSE}
-# Does not work, due to invalid geometries.
+```{r, handout = 0}
+# Rasterize polygon shapefile.
 scar_geom <-
   as(st_geometry(scar), 'Spatial')
 scar_zone <- rasterize(scar_geom, ndvi,
   background = 0,
-  filename = 'results/scar.grd',
+  filename = 'outputs_raster_ts/scar.grd',
   overwrite = TRUE)
-```
 
-===
-
-Fortunately, we have the rasterized version from another source.
-
-```{r, handout = 0}
-scar_zone <- raster('data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif')
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 ```
 
+Using `as()` we coerce the `scar` shapefile as an object of the 'Spatial' class. We then use `rasterize()` to create a `RasterLayer` object for the shapefile. Then we crop the raster to the same extent as `ndvi`.
+{:.notes}
+
 ===
 
-The `zonal` function calculates `fun` over each zone
+The `zonal` function calculates `fun` (here, `mean`) over each zone.
 
 ```{r, handout = 0}
 scar_ndvi <-
@@ -212,10 +234,16 @@ scar_zone <- data.frame(
   NDVI = c(scar_ndvi))
 ```
 
+Here we convert the zone category labels to a `factor` variable, then
+manually reshape the data from wide form to long form, with one column
+for the date, one for the zone category, and one for the mean NDVI value
+for that category.
+{:.notes}
+
 ===
 
 What appears to be the most pronounced signal in this view is an early loss of
-greenness compared to the background NDVI.
+greenness compared to the background NDVI (Zone 0).
 
 ```{r}
 ggplot(scar_zone,

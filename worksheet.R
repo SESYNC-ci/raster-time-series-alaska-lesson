@@ -26,8 +26,7 @@ scar <- ...(
 plot(...)
 plot(..., add = TRUE)
 
-burn_bbox <-
-  ...
+burn_bbox <- ...
 ndvi <- ...(ndvi, burn_bbox)
 
 ## Pixel Change 
@@ -90,8 +89,13 @@ ggplot(pixel,
 
 ## Zonal Averages 
 
-scar_zone <- ...(
-  'data/r_OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed.tif')
+scar_geom <-
+  as(st_geometry(scar), 'Spatial')
+scar_zone <- rasterize(scar_geom, ndvi,
+                       background = 0,
+                       filename = 'outputs_raster_ts/scar.grd',
+                       overwrite = TRUE)
+
 crs(scar_zone) <- '+init=epsg:3338'
 scar_zone <- crop(scar_zone, ndvi)
 

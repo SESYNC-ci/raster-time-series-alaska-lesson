@@ -10,9 +10,7 @@ values as a simple matrix with
 - each time slice as a variable
 - each pixel as an observation
 
-PCA is a technique for reducing dimensionality of a dataset based on correlation
-between variables. The method proceeds either by eigenvalue decomposition of a
-covariance matrix or singular-value decomposition of the entire dataset.
+Principal component analysis (PCA),  is an image classification technique. It is a technique for reducing dimensionality of a dataset based on correlation between variables. The method proceeds either by eigenvalue decomposition of a covariance matrix or singular-value decomposition of the entire dataset. Principal components are the distinctive or peculiar features of an image.
 {:.notes}
 
 ===
@@ -32,10 +30,19 @@ ndvi_cor <- cov2cor(ndvi_cov)
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
+Here, we use `layerStats` to calculate the covariance between each pair of
+layers (dates) in our NDVI brick, and the mean of each date. 
+`layerStats` calculates summary statistics 
+across multiple layers of a `RasterStack` or `RasterBrick`, analogous to how 
+`cellStats` calculates summary statistics for each layer separately. After
+calculating the summary statistics we extract each one to a separate object 
+and then scale the covariance matrix using `cov2cor`.
+{:.notes}
+
 ===
 
 The `layerStats` function only evaluates standard statistical summaries. The
-`calc` function however can apply user defined functions over or across raster
+`calc` function, however, can apply user-defined functions over or across raster
 layers.
 
 
@@ -50,10 +57,19 @@ ndvi_stdz <- calc(ndvi,
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
+Here we find the standard deviation of each NDVI time slice by pulling out
+the diagonal of the covariance matrix with `diag()`, which contains the variance of
+each time slice, then taking the square root of the variance. Next, inside `calc()`,
+we define a function inline to standardize a value by subtracting the mean then
+dividing by the standard deviation, then apply it
+to each pixel in each layer of `ndvi`. We use `filename` to write the output
+directly to disk.
+{:.notes}
+
 ===
 
 Standardizing the data removes the large seasonal swing, but not the correlation
-between "variables", i.e. between pixels in different time slices. Only the
+between "variables," i.e., between pixels in different time slices. Only the
 correlation matters for PCA.
 
 
@@ -69,8 +85,8 @@ correlation matters for PCA.
 
 ===
 
-Now, the principal component calculation proceeds using the NDVI correlations,
-which is just a 23 by 23 matrix of pairwise correlations between the 23 time
+Now, we use `princomp` to calculate the principal components of the NDVI correlations,
+which is just a 23-by-23 matrix of pairwise correlations between the 23 time
 slices. The plot method of the output shows the variance among pixels, not at
 each time slice, but on each principal component.
 
@@ -83,6 +99,9 @@ plot(pca)
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/pca/unnamed-chunk-5-1.png" %})
 {:.captioned}
+
+The bar plot of eigenvalues expressed in percentage plotted above gives us the information retained in each principal component (PC). Notice that the last PCs eigenvalues are small and less significant, this is where dimensionality reduction comes into play. If we chose to keep the first four relevant components that retain most of the information then the final data can be reduced to 4 PCs without loosing much information. 
+{:.notes}
 
 ===
 
@@ -104,10 +123,18 @@ loading <- data.frame(
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
+Here we manually reshape the output of `princomp` into a data frame for plotting.
+{:.notes}
+
 ===
 
 The first principal component is a more-or-less equally weighted combination of
 all time slices, like an average.
+
+In contrast, components 2 through 4 show trends over time. PC2 has a broad downward trend
+centered around July 2005, while PC3 has a sharp downward trend centered around 
+April 2005.
+{:.notes}
 
 
 
@@ -146,7 +173,9 @@ plot(ndvi_scores)
 A complication in here is that the `pca` object does not know how the original
 data were centered, because we didn't give it the original data. The `predict`
 function will behave as if we performed PCA on `ndvi_stdz[]` if we set the
-centering vector to zeros.
+centering vector to zeros. We specify `index = 1:npc` to restrict the 
+prediction to the first four principal component axes. 
+This returns a standardized value for each pixel on each of the four axes.
 {:.notes}
 
 ===
@@ -157,11 +186,12 @@ data, so approximate the NDVI time series by "un-projecting" the scores.
 Mathematically, the calculation for this approximation at each time slice,
 $$\mathbf{X_t}$$, is a linear combination of each score "map", $$\mathbf{T}_i$$, with
 time-varying loadings, $$W_{i,t}$$.
+
+$$ 
+\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \dots
+$$
 {:.notes}
 
-$$
-\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 +~...
-$$
 
 ===
 
@@ -183,10 +213,21 @@ names(ndvi_dev) <- names(ndvi)
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
+Here we define a function `fun` that takes two arguments, `x` and `y`. Those
+are the first two arguments we pass to `overlay`. The `overlay` function then 
+"overlays" raster brick `x`, the standardized NDVI time series with 23 layers, on raster brick `y`,
+the first 4 PCA scores for that time series, and applies `fun` to each pixel 
+of those two raster bricks. `fun` performs matrix multiplication of one pixel of `y` with
+the first 4 PCA loadings and then subtracts the result from `x`, resulting in the 
+difference between the observed standardized pixel values and the values 
+predicted by the principal components.
+{:.notes}
+
 ===
 
-Verify that the deviations just calculated are never very large, then try the
-same approximation using even fewer principal components.
+Verify that the deviations just calculated are never very large,
+(that is, the PCA predicts the true values fairly well),
+then try the same approximation using even fewer principal components.
 
 
 
@@ -201,7 +242,8 @@ same approximation using even fewer principal components.
 
 ===
 
-Based on the time variation in the loadings for principal components 2 and 3, we
+Based on the time variation in the loadings for principal components 2 and 3,
+as we saw in the graph of loadings versus time we made earlier, we
 might guess that they correspond to one longer-term and one shorter-term
 departure from the seasonal NDVI variation within this extent.
 

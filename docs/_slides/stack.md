@@ -22,10 +22,16 @@ one of two container types:
 
 ===
 
+The main difference is that a `RasterStack` is loose collection of `RasterLayer` objects that can refer to different files (but must all have the same extent and resolution), whereas a `RasterBrick` can only point to a single file.
+
+===
+
 ## Raster Stacks
 
 The layers of a "stack" can refer to data from separate files, or even a mix of
 data on disk and data in memory.
+
+Read raster data and create a stack. 
 
 
 
@@ -48,6 +54,9 @@ ndvi_yrly <- Sys.glob('data/r_ndvi_*.tif')
 ~~~
 {:.output}
 
+We read all the `.tif` files in the `data` folder using the `*` wildcard character.
+In this case, we read the two `.tif` files that are in the `data` folder.
+{:.notes}
 
 ===
 
@@ -60,6 +69,10 @@ names(ndvi) <- c(
   'Avg NDVI 2009')
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+Using the `stack()` function we create a raster stack and assign it to the `ndvi` object.
+We name each layer in the stack by using the `names` function. These will also be the titles for the plots.
+{:.notes}
 
 
 
@@ -79,6 +92,7 @@ projections. They only have to share a common extent and resolution.
 
 
 ~~~r
+> # display metadata for the 1st raster in the ndvi stack
 > raster(ndvi, 1)
 ~~~
 {:title="Console" .input}
@@ -113,6 +127,7 @@ crs(ndvi) <- '+init=epsg:3338'
 
 
 ~~~r
+> # display metadata for the ndvi stack
 > raster(ndvi, 0)
 ~~~
 {:title="Console" .input}
@@ -185,15 +200,37 @@ shapefile) occurred within boreal forest areas of central Alaska.
 
 
 ~~~r
-scar <- read_sf(
+scar <- st_read(
   'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed',
   crs = 3338)
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+~~~
+Reading layer `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' from data source `/nfs/public-data/training/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' using driver `ESRI Shapefile'
+Simple feature collection with 3 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 68336.13 ymin: 1772970 xmax: 219342.9 ymax: 1846967
+CRS:           EPSG:3338
+~~~
+{:.output}
+
+
+~~~r
 plot(ndvi[[1]])
 plot(st_geometry(scar), add = TRUE)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 ![ ]({% include asset.html path="images/stack/unnamed-chunk-10-1.png" %})
 {:.captioned}
+We read the `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed` directory. This
+is a polygon shapefile containing the geometry of a wildfire in central Alaska.
+We assign the `EPSG:3338` CRS for Alaska Albers when reading the shapefile.
+We plot the first raster layer in the `ndvi` stack and then plot an overlay of the
+wildfire using the polygon shapefile. 
+{:.notes}
 
 ===
 
@@ -203,11 +240,14 @@ extent of the shapefile.
 
 
 ~~~r
-burn_bbox <-
-  extent(matrix(st_bbox(scar), 2))
+burn_bbox <- st_bbox(scar)
 ndvi <- crop(ndvi, burn_bbox)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+Using `st_bbox()` we find the bounding box of the wildfire scar polygons. 
+We assign it to `burn_bbox` and crop the raster stack object `ndvi` to that extent.
+{:.notes}
 
 
 
@@ -253,6 +293,9 @@ names(diff_ndvi) <- 'Difference'
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
+`diff_ndvi` is a raster object containing the difference between the NDVI values for 2002 and 2009 for each pixel.
+{:.notes}
+
 
 
 ~~~r
@@ -278,7 +321,7 @@ The histogram shows clearly that change in NDVI within this corner of Alaska clu
 ===
 
 One way to "classify" pixels as potentially affected by wildfire is to threshold
-the difference. Pixels below "-0.1" mostly belong to the smaller mode, and may
+the difference. Pixels below `-0.1` mostly belong to the smaller mode, and may
 represent impacts of wildfire.
 
 
@@ -319,8 +362,12 @@ Mathematical operations with rasters and scalars work as expected; scalar
 values are repeated for each cell in the array.
 {:.notes}
 
-The difference threshold of "-0.1" appears roughly equivalent to a threshold of
+The difference threshold of `-0.1` appears roughly equivalent to a threshold of
 1 standard deviation below zero.
+
+In the following code block we standardize the NDVI difference by subtracting the
+mean we calculated earlier, and then dividing by the standard deviation.
+{:.notes}
 
 
 
