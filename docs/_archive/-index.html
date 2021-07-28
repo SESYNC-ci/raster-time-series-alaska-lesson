@@ -1,0 +1,1044 @@
+---
+---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raster Time-Series</title>
+<meta name="description" content="Efficiently analyze raster upon raster.">
+<link rel="canonical"
+      href="https://SESYNC-ci.github.io/raster-time-series-alaska-lesson/index.html">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/default.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/syntax.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/static.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+      rel="stylesheet"
+      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+      crossorigin="anonymous">
+
+    
+  </head>
+  <body>
+    <div class="page-content">
+      <div class="wrapper">
+        <h1 style="text-transform: none;" id="raster-time-series">Raster Time-Series</h1>
+
+<h2 style="text-transform: none;" id="wildfire-in-alaska">Wildfire in Alaska</h2>
+
+<blockquote>
+  <p>Handouts for this lesson need to be saved on your computer.
+<a href="https://github.com/SESYNC-ci/raster-time-series-alaska-lesson/releases/download/v0.2/handouts.zip">Download</a>
+and unzip this material into the directory (a.k.a. folder) where you plan to work.</p>
+</blockquote>
+
+<nav id="ToC">
+
+  <ul>
+    <li><a href="#/slides/intro">Introduction</a></li>
+    <li><a href="#/slides/stack">Raster upon Raster</a></li>
+    <li><a href="#/slides/brick">Raster Time Series</a></li>
+    <li><a href="#/slides/pca">Eliminating Time</a></li>
+    <li><a href="#/slides/conclude">Summary</a></li>
+  </ul>
+</nav>
+
+<hr />
+<p><a name="/slides/intro"></a></p>
+
+<section><h2 id="introduction">Introduction</h2>
+
+<p>The <a href="" class="rlib">raster</a> library is a powerful open-source geographical data analysis tool used to manipulate, analyze, and model spatial raster data.
+A raster is a grid of pixel values—in the world of geospatial data, the grid is associated with a location on Earth’s surface.
+This lesson provides an overview of using <a href="" class="rlib">raster</a>, the namesake package in R, to create a raster time series of wildfires in Alaska.</p>
+
+</section>
+
+<section>
+
+<h2 id="lesson-objectives">Lesson Objectives</h2>
+
+<ul>
+  <li>Work with time series raster data</li>
+  <li>Observe characteristics of wildfires in remote sensing data</li>
+  <li>Find “unusual” pixels in time-series of raster data</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="specific-achievements">Specific Achievements</h2>
+
+<ul>
+  <li>Distinguish raster “stacks” from  raster “bricks”</li>
+  <li>Use MODIS derived Normalized Difference Vegetation Index (NDVI) rasters</li>
+  <li>Execute efficient raster calculations</li>
+  <li>Perform Principal Component Analysis (PCA) on raster “bricks”</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="logistics">Logistics</h2>
+
+<p>Load packages, define global variables, and take care of remaining logistics at
+the very top.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">sf</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">raster</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+
+</span><span class="n">out</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'outputs_raster_ts'</span><span class="w">
+</span><span class="n">dir.create</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">showWarnings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">We load the required packages, <code class="language-plaintext highlighter-rouge">sf</code>, <code class="language-plaintext highlighter-rouge">raster</code>, and <code class="language-plaintext highlighter-rouge">ggplot2</code>. 
+<code class="language-plaintext highlighter-rouge">dir.create()</code>  creates a folder for output rasters called <code class="language-plaintext highlighter-rouge">outputs_raster_ts</code>.</p>
+</section>
+
+<p class="ToS"><a href="#/slides/intro">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/stack"></a></p>
+
+<section><h2 id="raster-upon-raster">Raster upon Raster</h2>
+
+<p>The <a href="" class="rlib">raster</a> library uniformly handles two-dimensional data as a
+<code class="language-plaintext highlighter-rouge">RasterLayer</code> object, created with the <code class="language-plaintext highlighter-rouge">raster()</code> function. There are several
+cases where raster data has a third dimension.</p>
+
+<ul>
+  <li>a multi-band image (e.g. Landsat scenes)</li>
+  <li>closely related images (e.g. time series of NDVI values)</li>
+  <li>three dimensional data (e.g. GCM products)</li>
+</ul>
+
+</section>
+
+<section>
+
+<p>Any <code class="language-plaintext highlighter-rouge">RasterLayer</code> objects that have the same extent and resolution (i.e. cover
+the same space with the same number of rows and columns) can be combined into
+one of two container types:</p>
+
+<ul>
+  <li>a <code class="language-plaintext highlighter-rouge">RasterStack</code> created with <code class="language-plaintext highlighter-rouge">stack()</code></li>
+  <li>a <code class="language-plaintext highlighter-rouge">RasterBrick</code> created with <code class="language-plaintext highlighter-rouge">brick()</code></li>
+</ul>
+
+</section>
+
+<section>
+
+<p>The main difference is that a <code class="language-plaintext highlighter-rouge">RasterStack</code> is loose collection of <code class="language-plaintext highlighter-rouge">RasterLayer</code> objects that can refer to different files (but must all have the same extent and resolution), whereas a <code class="language-plaintext highlighter-rouge">RasterBrick</code> can only point to a single file.</p>
+
+</section>
+
+<section>
+
+<h2 id="raster-stacks">Raster Stacks</h2>
+
+<p>The layers of a “stack” can refer to data from separate files, or even a mix of
+data on disk and data in memory.</p>
+
+<p>Read raster data and create a stack.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi_yrly</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">Sys.glob</span><span class="p">(</span><span class="s1">'data/r_ndvi_*.tif'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">ndvi_yrly</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] "data/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif"
+[2] "data/r_ndvi_2001_2009_filling6__STA_year9_Amplitude0.tif"
+</code></pre></div></div>
+
+<p class="notes">We read all the <code class="language-plaintext highlighter-rouge">.tif</code> files in the <code class="language-plaintext highlighter-rouge">data</code> folder using the <code class="language-plaintext highlighter-rouge">*</code> wildcard character.
+In this case, we read the two <code class="language-plaintext highlighter-rouge">.tif</code> files that are in the <code class="language-plaintext highlighter-rouge">data</code> folder.</p>
+
+</section>
+
+<section>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">stack</span><span class="p">(</span><span class="n">ndvi_yrly</span><span class="p">)</span><span class="w">
+</span><span class="nf">names</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="w">
+  </span><span class="s1">'Avg NDVI 2002'</span><span class="p">,</span><span class="w">
+  </span><span class="s1">'Avg NDVI 2009'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Using the <code class="language-plaintext highlighter-rouge">stack()</code> function we create a raster stack and assign it to the <code class="language-plaintext highlighter-rouge">ndvi</code> object.
+We name each layer in the stack by using the <code class="language-plaintext highlighter-rouge">names</code> function. These will also be the titles for the plots.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-4-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>The data source for the first layer is the first file in the list. Note that the
+CRS is missing: it is quite possible to stack files with different
+projections. They only have to share a common extent and resolution.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="c1"># display metadata for the 1st raster in the ndvi stack</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">raster</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class      : RasterLayer 
+dimensions : 1951, 2441, 4762391  (nrow, ncol, ncell)
+resolution : 1000.045, 999.9567  (x, y)
+extent     : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
+crs        : NA 
+source     : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
+names      : Avg.NDVI.2002 
+values     : -0.3, 0.8713216  (min, max)
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Set the CRS using the <a href="http://spatialreference.org/ref/epsg/nad83-alaska-albers/">EPSG code
+3338</a> for an Albers
+Equal Area projection of Alaska using the NAD38 datum.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">crs</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'+init=epsg:3338'</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="c1"># display metadata for the ndvi stack</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">raster</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class      : RasterLayer 
+dimensions : 1951, 2441, 4762391  (nrow, ncol, ncell)
+resolution : 1000.045, 999.9567  (x, y)
+extent     : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
+crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>The <code class="language-plaintext highlighter-rouge">ndvi</code> object only takes up a tiny amount of memory. The pixel values
+take up much more space on disk, as you can see in the file browser.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">print</span><span class="p">(</span><span class="n">object.size</span><span class="p">(</span><span class="n">ndvi</span><span class="p">),</span><span class="w">
+</span><span class="o">+</span><span class="w">   </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'KB'</span><span class="p">,</span><span class="w">
+</span><span class="o">+</span><span class="w">   </span><span class="n">standard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'SI'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>31.4 kB
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Why so small? The <code class="language-plaintext highlighter-rouge">ndvi</code> object is only metadata and a pointer to where the
+pixel values are saved on disk.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">inMemory</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] FALSE
+</code></pre></div></div>
+
+<p class="notes">Whereas <code class="language-plaintext highlighter-rouge">read.csv()</code> would load the named file into memory, the
+<a href="" class="rlib">raster</a> library handles files like a database where possible. The
+values can be accessed, to make those plots for example, but are not held in
+memory. This is the key to working with deep stacks of large rasters.</p>
+
+</section>
+
+<section>
+
+<h2 id="wildfires-in-alaska">Wildfires in Alaska</h2>
+
+<p>Many and massive wildfires burned in Alaska and the Yukon between 2001 and 2009.
+Three large fires that burned during this period (their locations are in a
+shapefile) occurred within boreal forest areas of central Alaska.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">scar</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_read</span><span class="p">(</span><span class="w">
+  </span><span class="s1">'data/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed'</span><span class="p">,</span><span class="w">
+  </span><span class="n">crs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3338</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Reading layer `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' from data source `/nfs/public-data/training/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' using driver `ESRI Shapefile'
+Simple feature collection with 3 features and 2 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 68336.13 ymin: 1772970 xmax: 219342.9 ymax: 1846967
+CRS:           EPSG:3338
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="n">ndvi</span><span class="p">[[</span><span class="m">1</span><span class="p">]])</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">st_geometry</span><span class="p">(</span><span class="n">scar</span><span class="p">),</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-10-1.png" alt=" " /></p>
+<p class="notes">We read the <code class="language-plaintext highlighter-rouge">OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed</code> directory. This
+is a polygon shapefile containing the geometry of a wildfire in central Alaska.
+We assign the <code class="language-plaintext highlighter-rouge">EPSG:3338</code> CRS for Alaska Albers when reading the shapefile.
+We plot the first raster layer in the <code class="language-plaintext highlighter-rouge">ndvi</code> stack and then plot an overlay of the
+wildfire using the polygon shapefile.</p>
+
+</section>
+
+<section>
+
+<p>For faster processing in this lesson, crop the NDVI imagery to the smaller
+extent of the shapefile.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">burn_bbox</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">st_bbox</span><span class="p">(</span><span class="n">scar</span><span class="p">)</span><span class="w">
+</span><span class="n">ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crop</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="n">burn_bbox</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Using <code class="language-plaintext highlighter-rouge">st_bbox()</code> we find the bounding box of the wildfire scar polygons. 
+We assign it to <code class="language-plaintext highlighter-rouge">burn_bbox</code> and crop the raster stack object <code class="language-plaintext highlighter-rouge">ndvi</code> to that extent.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">ndvi</span><span class="p">[[</span><span class="m">1</span><span class="p">]],</span><span class="w"> </span><span class="n">ext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">burn_bbox</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">st_geometry</span><span class="p">(</span><span class="n">scar</span><span class="p">),</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-12-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>Notice, however, that the NDVI values are now stored in memory. That’s okay for
+this part of the lesson; we’ll see the alternative shortly.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">inMemory</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] TRUE
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<h2 id="pixel-change">Pixel Change</h2>
+
+<p>Use element-wise subtraction to give a difference raster, where negative values
+indicate a higher NDVI in 2002, or a decrease in NDVI from 2002 to 2009.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">diff_ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ndvi</span><span class="p">[[</span><span class="m">2</span><span class="p">]]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ndvi</span><span class="p">[[</span><span class="m">1</span><span class="p">]]</span><span class="w">
+</span><span class="nf">names</span><span class="p">(</span><span class="n">diff_ndvi</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'Difference'</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes"><code class="language-plaintext highlighter-rouge">diff_ndvi</code> is a raster object containing the difference between the NDVI values for 2002 and 2009 for each pixel.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">diff_ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-15-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>The histogram shows clearly that change in NDVI within this corner of Alaska clusters around two modes.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">hist</span><span class="p">(</span><span class="n">diff_ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-16-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>One way to “classify” pixels as potentially affected by wildfire is to threshold
+the difference. Pixels below <code class="language-plaintext highlighter-rouge">-0.1</code> mostly belong to the smaller mode, and may
+represent impacts of wildfire.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">diff_ndvi</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">-0.1</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">st_geometry</span><span class="p">(</span><span class="n">scar</span><span class="p">),</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-17-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>The threshold value could also be defined in terms of the variability among
+pixels.</p>
+
+<p class="notes">Centering and scaling the pixel values requires computation of their
+mean and standard variation. The <code class="language-plaintext highlighter-rouge">cellStats</code> function efficiently applies a few
+common functions across large rasters, regardless of whether the values are in
+memory or on disk.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">diff_ndvi_mean</span><span class="w"> </span><span class="o">&lt;-</span><span class="w">
+  </span><span class="n">cellStats</span><span class="p">(</span><span class="n">diff_ndvi</span><span class="p">,</span><span class="w"> </span><span class="s1">'mean'</span><span class="p">)</span><span class="w">
+</span><span class="n">diff_ndvi_sd</span><span class="w"> </span><span class="o">&lt;-</span><span class="w">
+  </span><span class="n">cellStats</span><span class="p">(</span><span class="n">diff_ndvi</span><span class="p">,</span><span class="w"> </span><span class="s1">'sd'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">Mathematical operations with rasters and scalars work as expected; scalar
+values are repeated for each cell in the array.</p>
+
+<p>The difference threshold of <code class="language-plaintext highlighter-rouge">-0.1</code> appears roughly equivalent to a threshold of
+1 standard deviation below zero.</p>
+
+<p class="notes">In the following code block we standardize the NDVI difference by subtracting the
+mean we calculated earlier, and then dividing by the standard deviation.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">diff_ndvi_stdz</span><span class="w"> </span><span class="o">&lt;-</span><span class="w">
+  </span><span class="p">(</span><span class="n">diff_ndvi</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">diff_ndvi_mean</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w">
+  </span><span class="n">diff_ndvi_sd</span><span class="w">
+</span><span class="nf">names</span><span class="p">(</span><span class="n">diff_ndvi_stdz</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'Std. Diff.'</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">hist</span><span class="p">(</span><span class="n">diff_ndvi_stdz</span><span class="p">,</span><span class="w"> </span><span class="n">breaks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-20-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>Standardizing the pixel values does not change the overall result.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">diff_ndvi_stdz</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">-1</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">st_geometry</span><span class="p">(</span><span class="n">scar</span><span class="p">),</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/stack/unnamed-chunk-21-1.png" alt=" " /></p>
+</section>
+
+<p class="ToS"><a href="#/slides/stack">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/brick"></a></p>
+
+<section><h2 id="raster-time-series">Raster Time Series</h2>
+
+<p>Take a closer look at NDVI using products covering 16-day periods in 2005. These
+images are stored as separate files on the disk, all having the same extent and
+resolution.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi_16day</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">Sys.glob</span><span class="p">(</span><span class="w">
+  </span><span class="s1">'data/NDVI_alaska_2005/*.tif'</span><span class="p">)</span><span class="w">
+</span><span class="n">ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">stack</span><span class="p">(</span><span class="n">ndvi_16day</span><span class="p">)</span><span class="w">
+</span><span class="n">crs</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'+init=epsg:3338'</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">The <code class="language-plaintext highlighter-rouge">ndvi_16day</code> object contains the names for all the <code class="language-plaintext highlighter-rouge">.tif</code> files in the <code class="language-plaintext highlighter-rouge">data/NDVI_alaska_2005/</code> folder.
+We create a stack of rasters and assign a CRS.</p>
+
+</section>
+
+<section>
+
+<p>Lacking other metadata, extract the date of each image from its filename.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">dates</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">as.Date</span><span class="p">(</span><span class="w">
+  </span><span class="n">sub</span><span class="p">(</span><span class="s1">'alaska_NDVI_'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)),</span><span class="w">
+  </span><span class="s1">'%Y_%m_%d'</span><span class="p">)</span><span class="w">
+</span><span class="nf">names</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">format</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span><span class="w"> </span><span class="s1">'%b %d %Y'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">All the raster images are stored in the <code class="language-plaintext highlighter-rouge">ndvi</code> stack object and their names start
+with <code class="language-plaintext highlighter-rouge">alaska_NDVI_</code>.
+<code class="language-plaintext highlighter-rouge">names(ndvi)</code> gives us all the names of the rasters in the stack.
+First we use <code class="language-plaintext highlighter-rouge">sub()</code> to replace <code class="language-plaintext highlighter-rouge">alaska_NDVI_</code> with an empty string, which gives us just the dates.
+We then format the dates, and assign them back as the names for the rasters in the stack.
+In this case, we are formatting the dates like so: <code class="language-plaintext highlighter-rouge">'%b %d %Y'</code>, where <code class="language-plaintext highlighter-rouge">%b</code> is the month, <code class="language-plaintext highlighter-rouge">%d</code> the day, and <code class="language-plaintext highlighter-rouge">%Y</code> the year.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">plot</span><span class="p">(</span><span class="n">subset</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">2</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/brick/unnamed-chunk-3-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<h2 id="raster-bricks">Raster Bricks</h2>
+
+<p>A <code class="language-plaintext highlighter-rouge">RasterBrick</code> representation of tightly integrated raster layers, such as a
+time series of remote sensing data from sequential overflights, has advantages
+for speed but limitations on flexibility.</p>
+
+<p class="notes">A <code class="language-plaintext highlighter-rouge">RasterStack</code> is more flexible because it can mix values stored on disk with
+those in memory. Adding a layer of in-memory values to a <code class="language-plaintext highlighter-rouge">RasterBrick</code> causes the
+entire brick to be loaded into memory, which may not be possible given the
+available memory.</p>
+
+<p class="notes"><code class="language-plaintext highlighter-rouge">RasterBrick</code> can be created from a <code class="language-plaintext highlighter-rouge">RasterStack</code></p>
+
+</section>
+
+<section>
+
+<p>For training purposes, again crop the NDVI data to the bounding box of the
+wildfires shapefile. But this time, avoid reading the values into memory.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crop</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="n">burn_bbox</span><span class="p">,</span><span class="w">
+  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file.path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s1">'crop_alaska_ndvi.grd'</span><span class="p">),</span><span class="w">
+  </span><span class="n">overwrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Notice that <code class="language-plaintext highlighter-rouge">crop</code> creates a <code class="language-plaintext highlighter-rouge">RasterBrick</code>. In fact, we have been working with a
+<code class="language-plaintext highlighter-rouge">RasterBrick</code> in memory since first using <code class="language-plaintext highlighter-rouge">crop</code>.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">ndvi</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class      : RasterBrick 
+dimensions : 74, 151, 11174, 23  (nrow, ncol, ncell, nlayers)
+resolution : 1000.045, 999.9566  (x, y)
+extent     : 68336.16, 219342.9, 1772970, 1846967  (xmin, xmax, ymin, ymax)
+crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
+source     : /research-home/agarcia/lesson_repos/raster-time-series-alaska-lesson/outputs_raster_ts/crop_alaska_ndvi.grd 
+names      : Jan.01.2005, Jan.17.2005, Feb.02.2005, Feb.18.2005, Mar.06.2005, Mar.22.2005, Apr.07.2005, Apr.23.2005, May.09.2005, May.25.2005, Jun.10.2005, Jun.26.2005, Jul.12.2005, Jul.28.2005, Aug.13.2005, ... 
+min values :    -0.19518,    -0.20000,    -0.19900,    -0.18050,    -0.12120,    -0.09540,    -0.03910,    -0.11290,    -0.09390,    -0.15520,    -0.18400,    -0.16780,    -0.18000,    -0.17200,    -0.18600, ... 
+max values :   0.3337000,   0.3633000,   0.4949000,   0.3514000,   0.4898000,   0.7274000,   0.6268000,   0.5879000,   0.9076000,   0.9190000,   0.8807000,   0.9625000,   0.8810000,   0.9244000,   0.9493000, ... 
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<h2 id="so-much-data">So Much Data</h2>
+
+<p>The immediate challenge is trying to represent the data in ways we can explore
+and interpret the characteristics of wildfire visible by remote sensing.</p>
+
+<div class="language-r no-eval input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">animate</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="n">pause</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/ndvi_animation.gif" alt="plot of ndvi_animation" /></p>
+
+</section>
+
+<section>
+
+<h2 id="pixel-time-series">Pixel Time Series</h2>
+
+<p>Verify that something happened very abruptly (fire!?) by plotting the time
+series at pixels corresponding to locations with dramatic NDVI variation in the
+layer from Aug 13, 2005.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">idx</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="s1">'Aug.13.2005'</span><span class="p">,</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="n">ndvi</span><span class="p">))</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">ndvi</span><span class="p">[[</span><span class="n">idx</span><span class="p">]])</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/brick/unnamed-chunk-8-1.png" alt=" " /></p>
+<p class="notes"><code class="language-plaintext highlighter-rouge">match()</code> returns the index of the layer in <code class="language-plaintext highlighter-rouge">ndvi</code> named <code class="language-plaintext highlighter-rouge">'Aug.13.2005'</code>.</p>
+
+</section>
+
+<section>
+
+<div class="language-r no-eval input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">pixel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">click</span><span class="p">(</span><span class="n">ndvi</span><span class="p">[[</span><span class="n">idx</span><span class="p">]],</span><span class="w"> </span><span class="n">cell</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pixel</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes"><code class="language-plaintext highlighter-rouge">click()</code> gives us the ability to click on the plot map and get pixel values for a cell.
+After clicking on the map, you will see the cell number and value for that cell is printed on the console. 
+Press the <code class="language-plaintext highlighter-rouge">esc</code> key to exit the pixel clicker.</p>
+
+</section>
+
+<section>
+
+<p>“Hard code” these pixel values into your worksheet.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">pixel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2813</span><span class="p">,</span><span class="w"> </span><span class="m">3720</span><span class="p">,</span><span class="w"> </span><span class="m">2823</span><span class="p">,</span><span class="w"> </span><span class="m">4195</span><span class="p">,</span><span class="w"> </span><span class="m">9910</span><span class="p">)</span><span class="w">
+</span><span class="n">scar_pixel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="w">
+  </span><span class="n">Date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">pixel</span><span class="p">)),</span><span class="w">
+  </span><span class="n">cell</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">pixel</span><span class="p">,</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">dates</span><span class="p">)),</span><span class="w">
+  </span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'burn scar?'</span><span class="p">,</span><span class="w">
+  </span><span class="n">NDVI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">ndvi</span><span class="p">[</span><span class="n">pixel</span><span class="p">]))</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">We create a <code class="language-plaintext highlighter-rouge">scar_pixel</code> dataframe for the burn scar. <code class="language-plaintext highlighter-rouge">rep()</code> repeats the dates  <code class="language-plaintext highlighter-rouge">each</code> times (the number of pixels). 
+<code class="language-plaintext highlighter-rouge">pixel</code> is repeated for each of the dates.</p>
+
+</section>
+
+<section>
+
+<p>Repeat the selection with <code class="language-plaintext highlighter-rouge">click</code> for “normal” looking pixels.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">pixel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1710</span><span class="p">,</span><span class="w"> </span><span class="m">4736</span><span class="p">,</span><span class="w"> </span><span class="m">7374</span><span class="p">,</span><span class="w"> </span><span class="m">1957</span><span class="p">,</span><span class="w"> </span><span class="m">750</span><span class="p">)</span><span class="w">
+</span><span class="n">normal_pixel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="w">
+  </span><span class="n">Date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">pixel</span><span class="p">)),</span><span class="w">
+  </span><span class="n">cell</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">pixel</span><span class="p">,</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">dates</span><span class="p">)),</span><span class="w">
+  </span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'normal'</span><span class="p">,</span><span class="w">
+  </span><span class="n">NDVI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">ndvi</span><span class="p">[</span><span class="n">pixel</span><span class="p">]))</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Join your haphazard samples together for comparison as time series.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">pixel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rbind</span><span class="p">(</span><span class="n">normal_pixel</span><span class="p">,</span><span class="w"> </span><span class="n">scar_pixel</span><span class="p">)</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">pixel</span><span class="p">,</span><span class="w">
+       </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NDVI</span><span class="p">,</span><span class="w">
+           </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cell</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Type</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_line</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/brick/unnamed-chunk-12-1.png" alt=" " /></p>
+
+<p class="notes">Combine the two dataframes we created to a single one and plot with <code class="language-plaintext highlighter-rouge">ggplot()</code>.
+We can see a significant difference in August between a possible burn scar and what the area normally looks like.</p>
+
+</section>
+
+<section>
+
+<h2 id="zonal-averages">Zonal Averages</h2>
+
+<p>We cannot very well analyze the time series for every pixel, so we have to reduce
+the dimensionality of the data. One way is to summarize it by “zones” defined by
+another spatial data source.</p>
+
+<div class="language-r no-eval input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="o">?</span><span class="n">zonal</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Currently we have raster data (<code class="language-plaintext highlighter-rouge">ndvi</code>) and vector data (<code class="language-plaintext highlighter-rouge">scar</code>). In order to
+aggregate by polygon, we have to join these two datasets. There are two
+approaches. 1) Treat the raster data as POINT geometries in a table and perform
+a spatial join to the table with POLYGON geometries. 2) Turn the polygons into a
+raster and summarize the raster masked for each polygon. Let’s pursue option 2.</p>
+
+</section>
+
+<section>
+
+<p>Let’s convert out <code class="language-plaintext highlighter-rouge">scar</code> shapefile to raster with the <code class="language-plaintext highlighter-rouge">rasterize</code>
+function.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="c1"># Rasterize polygon shapefile.</span><span class="w">
+</span><span class="n">scar_geom</span><span class="w"> </span><span class="o">&lt;-</span><span class="w">
+  </span><span class="n">as</span><span class="p">(</span><span class="n">st_geometry</span><span class="p">(</span><span class="n">scar</span><span class="p">),</span><span class="w"> </span><span class="s1">'Spatial'</span><span class="p">)</span><span class="w">
+</span><span class="n">scar_zone</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rasterize</span><span class="p">(</span><span class="n">scar_geom</span><span class="p">,</span><span class="w"> </span><span class="n">ndvi</span><span class="p">,</span><span class="w">
+  </span><span class="n">background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w">
+  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'outputs_raster_ts/scar.grd'</span><span class="p">,</span><span class="w">
+  </span><span class="n">overwrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+
+</span><span class="n">crs</span><span class="p">(</span><span class="n">scar_zone</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s1">'+init=epsg:3338'</span><span class="w">
+</span><span class="n">scar_zone</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crop</span><span class="p">(</span><span class="n">scar_zone</span><span class="p">,</span><span class="w"> </span><span class="n">ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Using <code class="language-plaintext highlighter-rouge">as()</code> we coerce the <code class="language-plaintext highlighter-rouge">scar</code> shapefile as an object of the ‘Spatial’ class. We then use <code class="language-plaintext highlighter-rouge">rasterize()</code> to create a <code class="language-plaintext highlighter-rouge">RasterLayer</code> object for the shapefile. Then we crop the raster to the same extent as <code class="language-plaintext highlighter-rouge">ndvi</code>.</p>
+
+</section>
+
+<section>
+
+<p>The <code class="language-plaintext highlighter-rouge">zonal</code> function calculates <code class="language-plaintext highlighter-rouge">fun</code> (here, <code class="language-plaintext highlighter-rouge">mean</code>) over each zone.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">scar_ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w">
+  </span><span class="n">zonal</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="n">scar_zone</span><span class="p">,</span><span class="w"> </span><span class="s2">"mean"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Rearrange the data for visualization as a time series.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">zone</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">scar_ndvi</span><span class="p">[,</span><span class="w"> </span><span class="m">1</span><span class="p">])</span><span class="w">
+</span><span class="n">scar_ndvi</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">scar_ndvi</span><span class="p">[,</span><span class="w"> </span><span class="m">-1</span><span class="p">]</span><span class="w">
+</span><span class="n">scar_zone</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="w">
+  </span><span class="n">Date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">scar_ndvi</span><span class="p">)),</span><span class="w">
+  </span><span class="n">Zone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">zone</span><span class="p">,</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">dates</span><span class="p">)),</span><span class="w">
+  </span><span class="n">NDVI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">scar_ndvi</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Here we convert the zone category labels to a <code class="language-plaintext highlighter-rouge">factor</code> variable, then
+manually reshape the data from wide form to long form, with one column
+for the date, one for the zone category, and one for the mean NDVI value
+for that category.</p>
+
+</section>
+
+<section>
+
+<p>What appears to be the most pronounced signal in this view is an early loss of
+greenness compared to the background NDVI (Zone 0).</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">ggplot</span><span class="p">(</span><span class="n">scar_zone</span><span class="p">,</span><span class="w">
+</span><span class="o">+</span><span class="w">        </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NDVI</span><span class="p">,</span><span class="w">
+</span><span class="o">+</span><span class="w">            </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Zone</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="o">+</span><span class="w">   </span><span class="n">geom_line</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/brick/unnamed-chunk-17-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<h2 id="zonal-statistics">Zonal Statistics</h2>
+
+<ul>
+  <li>provide a very clean reduction of raster time-series for easy visualization</li>
+  <li>require pre-defined zones!</li>
+</ul>
+</section>
+
+<p class="ToS"><a href="#/slides/brick">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/pca"></a></p>
+
+<section><h2 id="eliminating-time">Eliminating Time</h2>
+
+<p>Because changes to NDVI at each pixel follow a similar pattern over the course
+of a year, the slices are highly correlated. Consider representing the NDVI
+values as a simple matrix with</p>
+
+<ul>
+  <li>each time slice as a variable</li>
+  <li>each pixel as an observation</li>
+</ul>
+
+<p class="notes">Principal component analysis (PCA),  is an image classification technique. It is a technique for reducing dimensionality of a dataset based on correlation between variables. The method proceeds either by eigenvalue decomposition of a covariance matrix or singular-value decomposition of the entire dataset. Principal components are the distinctive or peculiar features of an image.</p>
+
+</section>
+
+<section>
+
+<p>To perform PCA on raster data, it’s efficient to use specialized tools that
+calculate a covariance matrix without reading in that big data matrix.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi_lS</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">layerStats</span><span class="p">(</span><span class="w">
+  </span><span class="n">ndvi</span><span class="p">,</span><span class="w"> </span><span class="s1">'cov'</span><span class="p">,</span><span class="w"> </span><span class="n">na.rm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="n">ndvi_mean</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ndvi_lS</span><span class="p">[[</span><span class="s1">'mean'</span><span class="p">]]</span><span class="w">
+</span><span class="n">ndvi_cov</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ndvi_lS</span><span class="p">[[</span><span class="s1">'covariance'</span><span class="p">]]</span><span class="w">
+</span><span class="n">ndvi_cor</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cov2cor</span><span class="p">(</span><span class="n">ndvi_cov</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Here, we use <code class="language-plaintext highlighter-rouge">layerStats</code> to calculate the covariance between each pair of
+layers (dates) in our NDVI brick, and the mean of each date. 
+<code class="language-plaintext highlighter-rouge">layerStats</code> calculates summary statistics 
+across multiple layers of a <code class="language-plaintext highlighter-rouge">RasterStack</code> or <code class="language-plaintext highlighter-rouge">RasterBrick</code>, analogous to how 
+<code class="language-plaintext highlighter-rouge">cellStats</code> calculates summary statistics for each layer separately. After
+calculating the summary statistics we extract each one to a separate object 
+and then scale the covariance matrix using <code class="language-plaintext highlighter-rouge">cov2cor</code>.</p>
+
+</section>
+
+<section>
+
+<p>The <code class="language-plaintext highlighter-rouge">layerStats</code> function only evaluates standard statistical summaries. The
+<code class="language-plaintext highlighter-rouge">calc</code> function, however, can apply user-defined functions over or across raster
+layers.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi_std</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="n">diag</span><span class="p">(</span><span class="n">ndvi_cov</span><span class="p">))</span><span class="w">
+</span><span class="n">ndvi_stdz</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">calc</span><span class="p">(</span><span class="n">ndvi</span><span class="p">,</span><span class="w">
+  </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ndvi_mean</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">ndvi_std</span><span class="p">,</span><span class="w">
+  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file.path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s1">'ndvi_stdz.grd'</span><span class="p">),</span><span class="w">
+  </span><span class="n">overwrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Here we find the standard deviation of each NDVI time slice by pulling out
+the diagonal of the covariance matrix with <code class="language-plaintext highlighter-rouge">diag()</code>, which contains the variance of
+each time slice, then taking the square root of the variance. Next, inside <code class="language-plaintext highlighter-rouge">calc()</code>,
+we define a function inline to standardize a value by subtracting the mean then
+dividing by the standard deviation, then apply it
+to each pixel in each layer of <code class="language-plaintext highlighter-rouge">ndvi</code>. We use <code class="language-plaintext highlighter-rouge">filename</code> to write the output
+directly to disk.</p>
+
+</section>
+
+<section>
+
+<p>Standardizing the data removes the large seasonal swing, but not the correlation
+between “variables,” i.e., between pixels in different time slices. Only the
+correlation matters for PCA.</p>
+
+<div class="language-r no-eval input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">animate</span><span class="p">(</span><span class="n">ndvi_stdz</span><span class="p">,</span><span class="w"> </span><span class="n">pause</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/ndvi_stdz_animation.gif" alt="plot of ndvi_stdz_animation" /></p>
+
+</section>
+
+<section>
+
+<p>Now, we use <code class="language-plaintext highlighter-rouge">princomp</code> to calculate the principal components of the NDVI correlations,
+which is just a 23-by-23 matrix of pairwise correlations between the 23 time
+slices. The plot method of the output shows the variance among pixels, not at
+each time slice, but on each principal component.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">pca</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">princomp</span><span class="p">(</span><span class="n">covmat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ndvi_cor</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">pca</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/pca/unnamed-chunk-5-1.png" alt=" " /></p>
+
+<p class="notes">The bar plot of eigenvalues expressed in percentage plotted above gives us the information retained in each principal component (PC). Notice that the last PCs eigenvalues are small and less significant, this is where dimensionality reduction comes into play. If we chose to keep the first four relevant components that retain most of the information then the final data can be reduced to 4 PCs without loosing much information.</p>
+
+</section>
+
+<section>
+
+<p>Principal component “loadings” correspond to the weight each time slice
+contributes to each component.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">npc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">4</span><span class="w">
+</span><span class="n">loading</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="w">
+  </span><span class="n">Date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span><span class="w"> </span><span class="n">npc</span><span class="p">),</span><span class="w"> 
+  </span><span class="n">PC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="w">
+    </span><span class="nf">rep</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">npc</span><span class="p">,</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">dates</span><span class="p">))</span><span class="w">
+  </span><span class="p">),</span><span class="w">
+  </span><span class="n">Loading</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="n">pca</span><span class="o">$</span><span class="n">loadings</span><span class="p">[,</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">npc</span><span class="p">])</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Here we manually reshape the output of <code class="language-plaintext highlighter-rouge">princomp</code> into a data frame for plotting.</p>
+
+</section>
+
+<section>
+
+<p>The first principal component is a more-or-less equally weighted combination of
+all time slices, like an average.</p>
+
+<p class="notes">In contrast, components 2 through 4 show trends over time. PC2 has a broad downward trend
+centered around July 2005, while PC3 has a sharp downward trend centered around 
+April 2005.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">loading</span><span class="p">,</span><span class="w">
+       </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Date</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Loading</span><span class="p">,</span><span class="w">
+           </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PC</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_line</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/pca/unnamed-chunk-7-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>The principal component scores are projections of the NDVI values at each time
+point onto the components. Memory limitation may foil a straightforward attempt at this calculation, but the <a href="" class="rlib">raster</a>
+package <code class="language-plaintext highlighter-rouge">predict</code> wrapper carries the princomp <code class="language-plaintext highlighter-rouge">predict</code> method through to
+the time series for each pixel.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">pca</span><span class="o">$</span><span class="n">center</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pca</span><span class="o">$</span><span class="n">scale</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">0</span><span class="w">
+</span><span class="n">ndvi_scores</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="w">
+  </span><span class="n">ndvi_stdz</span><span class="p">,</span><span class="w"> </span><span class="n">pca</span><span class="p">,</span><span class="w">
+  </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">npc</span><span class="p">,</span><span class="w">
+  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file.path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s1">'ndvi_scores.grd'</span><span class="p">),</span><span class="w">
+  </span><span class="n">overwrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">ndvi_scores</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/pca/unnamed-chunk-8-1.png" alt=" " /></p>
+
+<p class="notes">A complication in here is that the <code class="language-plaintext highlighter-rouge">pca</code> object does not know how the original
+data were centered, because we didn’t give it the original data. The <code class="language-plaintext highlighter-rouge">predict</code>
+function will behave as if we performed PCA on <code class="language-plaintext highlighter-rouge">ndvi_stdz[]</code> if we set the
+centering vector to zeros. We specify <code class="language-plaintext highlighter-rouge">index = 1:npc</code> to restrict the 
+prediction to the first four principal component axes. 
+This returns a standardized value for each pixel on each of the four axes.</p>
+
+</section>
+
+<section>
+
+<p>The first several principal components account for most of the variance in the
+data, so approximate the NDVI time series by “un-projecting” the scores.</p>
+
+<p>Mathematically, the calculation for this approximation at each time slice,
+\(\mathbf{X_t}\), is a linear combination of each score “map”, \(\mathbf{T}_i\), with
+time-varying loadings, \(W_{i,t}\).</p>
+
+<div class="notes">\[\mathbf{X}_t \approx W_{1,t} \mathbf{T}_1 + W_{2,t} \mathbf{T}_2 + W_{3,t} \mathbf{T}_3 + \dots\]
+</div>
+
+</section>
+
+<section>
+
+<p>The flexible <code class="language-plaintext highlighter-rouge">overlay</code> function allows you to pass a custom function for
+pixel-wise calculations on one or more of the main raster objects.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">ndvi_dev</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">overlay</span><span class="p">(</span><span class="w">
+  </span><span class="n">ndvi_stdz</span><span class="p">,</span><span class="w"> </span><span class="n">ndvi_scores</span><span class="p">,</span><span class="w">
+  </span><span class="n">fun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">%*%</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="n">pca</span><span class="o">$</span><span class="n">loadings</span><span class="p">[,</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">npc</span><span class="p">])</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file.path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s1">'ndvi_dev.grd'</span><span class="p">),</span><span class="w">
+  </span><span class="n">overwrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="nf">names</span><span class="p">(</span><span class="n">ndvi_dev</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="n">ndvi</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">Here we define a function <code class="language-plaintext highlighter-rouge">fun</code> that takes two arguments, <code class="language-plaintext highlighter-rouge">x</code> and <code class="language-plaintext highlighter-rouge">y</code>. Those
+are the first two arguments we pass to <code class="language-plaintext highlighter-rouge">overlay</code>. The <code class="language-plaintext highlighter-rouge">overlay</code> function then 
+“overlays” raster brick <code class="language-plaintext highlighter-rouge">x</code>, the standardized NDVI time series with 23 layers, on raster brick <code class="language-plaintext highlighter-rouge">y</code>,
+the first 4 PCA scores for that time series, and applies <code class="language-plaintext highlighter-rouge">fun</code> to each pixel 
+of those two raster bricks. <code class="language-plaintext highlighter-rouge">fun</code> performs matrix multiplication of one pixel of <code class="language-plaintext highlighter-rouge">y</code> with
+the first 4 PCA loadings and then subtracts the result from <code class="language-plaintext highlighter-rouge">x</code>, resulting in the 
+difference between the observed standardized pixel values and the values 
+predicted by the principal components.</p>
+
+</section>
+
+<section>
+
+<p>Verify that the deviations just calculated are never very large,
+(that is, the PCA predicts the true values fairly well),
+then try the same approximation using even fewer principal components.</p>
+
+<div class="language-r no-eval input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">animate</span><span class="p">(</span><span class="n">ndvi_dev</span><span class="p">,</span><span class="w"> </span><span class="n">pause</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/ndvi_dev_animation.gif" alt="plot of ndvi_dev_animation" /></p>
+
+</section>
+
+<section>
+
+<p>Based on the time variation in the loadings for principal components 2 and 3,
+as we saw in the graph of loadings versus time we made earlier, we
+might guess that they correspond to one longer-term and one shorter-term
+departure from the seasonal NDVI variation within this extent.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet.R"><div class="highlight"><pre class="highlight"><code><span class="n">plot</span><span class="p">(</span><span class="w">
+  </span><span class="n">ndvi_scores</span><span class="p">[[</span><span class="m">2</span><span class="p">]]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">-2</span><span class="w"> </span><span class="o">|</span><span class="w">
+  </span><span class="n">ndvi_scores</span><span class="p">[[</span><span class="m">3</span><span class="p">]]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">-2</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">st_geometry</span><span class="p">(</span><span class="n">scar</span><span class="p">),</span><span class="w"> </span><span class="n">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/raster-time-series-alaska-lesson@v0.2/docs/assets/images/pca/unnamed-chunk-12-1.png" alt=" " /></p>
+</section>
+
+<p class="ToS"><a href="#/slides/pca">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/conclude"></a></p>
+
+<section><h2 id="summary">Summary</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">RasterBrick</code> objects created by the <code class="language-plaintext highlighter-rouge">brick</code> function, or sometimes as the
+result of calculations on a <code class="language-plaintext highlighter-rouge">RasterStack</code>, are built for many layers of large
+rasters. Key principles for efficient analysis of raster time series include:</p>
+
+</section>
+
+<section>
+
+<ul>
+  <li>consolidate <code class="language-plaintext highlighter-rouge">RasterStacks</code> to <code class="language-plaintext highlighter-rouge">RasterBricks</code> for faster computation</li>
+  <li>provide <code class="language-plaintext highlighter-rouge">filename</code> arguments to keep objects on disk</li>
+  <li>use <code class="language-plaintext highlighter-rouge">layerStats</code> to get a covariance matrix for Principal Component Analysis (PCA)</li>
+  <li>use <code class="language-plaintext highlighter-rouge">calc</code> and <code class="language-plaintext highlighter-rouge">overlay</code> to call custom functions</li>
+</ul>
+
+<p>Takeaways:</p>
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">raster</code> package has two classes for multi-layer data the <code class="language-plaintext highlighter-rouge">RasterStacks</code> and the <code class="language-plaintext highlighter-rouge">RasterBrik</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">RasterBrik</code> can only be linked to a single (multi-layer) file.</li>
+  <li><code class="language-plaintext highlighter-rouge">RasterStack</code> can be formed from separate files and/or from a few layers from a single file.</li>
+  <li>PCA is a dimensionality-reduction method used to reduce the dimensionality of a large data set improving algorithm and analysis performance and speed.</li>
+</ul>
+</section>
+
+<p class="ToS"><a href="#/slides/conclude">Top of Section</a></p>
+
+
+        <hr>
+
+<p>If you need to catch-up before a section of code will work, just squish it's
+🍅 to copy code above it into your clipboard. Then paste into your interpreter's
+console, run, and you'll be ready to start in on that section. Code copied by
+both 🍅 and 📋 will also appear below, where you can edit first, and then copy,
+paste, and run again.</p>
+
+<div class="output">
+  <pre id="ketchup" contenteditable="true"><code># Nothing here yet!</code></pre>
+</div>
+
+<script>
+$(document).ready(function(){
+  
+  // Add code help icons to code blocks
+  $('.input, .text-document').append('<ul class="code-help">');
+  $('.code-help')
+    .append('<li class="clipboard">📋</li>');
+  $('.text-document:not(.no-eval) .code-help')
+    .append('<li class="ketchup">🍅</li>');
+
+  // Bind copy actions to mouse clicks on icons
+  var $ketchup = $('#ketchup');
+  var rng = document.createRange();
+  var sel = window.getSelection();
+  $('.ketchup').click(function(){
+    var $prev = $(this)
+      .parents('.text-document')
+      .prevAll('.text-document:has(.ketchup)');
+    $ketchup.find('code').text($prev.find('pre').text());
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+  $('.text-document .clipboard').click(function(){
+    var pre = $(this).parents('.text-document').find('pre').text();
+    $ketchup.find('code').text(pre);
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+  $('.input .clipboard').click(function(){
+    var pre = $(this).parents('.input').find('pre').text();
+    pre = pre.replace(/(^|\n)[>+] /g, '$1');
+    $ketchup.find('code').text(pre);
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+});
+</script>
+      </div>
+    </div>
+    <script>
+$(document).ready(function(){
+  // Add links to R and Python package repositories
+  $('a.rlib').map(function(){
+    this.href = 'https://cran.r-project.org/package=' + this.innerText;
+  });
+  $('a.pylib').map(function(){
+    this.href = 'https://pypi.python.org/pypi/' + this.innerText;
+  });
+});
+</script>
+
+    <footer>
+      <p>
+        <a href="https://github.com/SESYNC-ci/sesync-ci.github.io/blob/master/lesson/lesson-lifecycle.md" target="_blank">
+          <img src="https://img.shields.io/badge/lifecycle-stable-green.svg" alt="Lifecycle status"> 
+        </a>
+      </p>
+      <p>
+        <a href="https://github.com/SESYNC-ci/raster-time-series-alaska-lesson/issues" target="_blank">
+          <i class="fas fa-exclamation-circle" aria-hidden="true"></i> report an issue
+        </a>
+      </p>
+      <p>Site maintained by
+        <a href="https://github.com/SESYNC-ci">SESYNC-ci</a>
+      </p>
+    </footer>
+  </body>
+</html>
