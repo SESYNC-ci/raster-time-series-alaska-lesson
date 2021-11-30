@@ -104,7 +104,7 @@ dimensions : 1951, 2441, 4762391  (nrow, ncol, ncell)
 resolution : 1000.045, 999.9567  (x, y)
 extent     : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
 crs        : NA 
-source     : /nfs/public-data/training/r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
+source     : r_ndvi_2001_2009_filling6__STA_year2_Amplitude0.tif 
 names      : Avg.NDVI.2002 
 values     : -0.3, 0.8713216  (min, max)
 ~~~
@@ -138,7 +138,7 @@ class      : RasterLayer
 dimensions : 1951, 2441, 4762391  (nrow, ncol, ncell)
 resolution : 1000.045, 999.9567  (x, y)
 extent     : -930708.7, 1510401, 454027.3, 2404943  (xmin, xmax, ymin, ymax)
-crs        : +init=epsg:3338 +proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0 
+crs        : +proj=aea +lat_0=50 +lon_0=-154 +lat_1=55 +lat_2=65 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs 
 ~~~
 {:.output}
 
@@ -159,7 +159,7 @@ take up much more space on disk, as you can see in the file browser.
 
 
 ~~~
-31.4 kB
+36.7 kB
 ~~~
 {:.output}
 
@@ -208,12 +208,25 @@ scar <- st_read(
 
 
 ~~~
-Reading layer `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' from data source `/nfs/public-data/training/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' using driver `ESRI Shapefile'
+Reading layer `OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' from data source `/nfs/public-data/training/OVERLAY_ID_83_399_144_TEST_BURNT_83_144_399_reclassed' 
+  using driver `ESRI Shapefile'
+~~~
+{:.output}
+
+
+~~~
+Warning: st_crs<- : replacing crs does not reproject data; use st_transform for
+that
+~~~
+{:.output}
+
+
+~~~
 Simple feature collection with 3 features and 2 fields
 Geometry type: MULTIPOLYGON
 Dimension:     XY
 Bounding box:  xmin: 68336.13 ymin: 1772970 xmax: 219342.9 ymax: 1846967
-CRS:           EPSG:3338
+Projected CRS: NAD83 / Alaska Albers
 ~~~
 {:.output}
 
