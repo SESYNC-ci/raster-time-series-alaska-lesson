@@ -18,6 +18,7 @@ instructor: Quentin Read
 lifecycle: stable # status for lifecycle badge
 badgecolor: green # color for lifecycle badge
 warning: false # whether to include note about lifecycle status
+doi: 10.5281/zenodo.5710893
 authors:
   - Benoit Parmentier
   - Ian Carroll
