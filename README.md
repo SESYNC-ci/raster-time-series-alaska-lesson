@@ -1,5 +1,5 @@
 [![lifecycle](https://img.shields.io/badge/lifecycle-beta-blue.svg)](https://github.com/SESYNC-ci/sesync-ci.github.io/blob/master/lesson/lesson-lifecycle.md#beta)
-[![DOI](https://zenodo.org/badge/127468648.svg)](https://zenodo.org/badge/latestdoi/127468648)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5710892.svg)](https://doi.org/10.5281/zenodo.5710892)
 
 ## Raster Time Series Lesson
 
